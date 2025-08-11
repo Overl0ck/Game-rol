@@ -1,9 +1,27 @@
 {
   "devDependencies": {
-    "electron": "^36.5.0"
+    "electron": "^36.7.4"
   },
   "dependencies": {
     "@capacitor/cli": "^7.4.0",
     "@capacitor/core": "^7.4.0"
-  }
+  },
+  "name": "game-rol",
+  "version": "1.0.0",
+  "description": "************************************************    \r      Juego De Cartas",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Overl0ck/Game-rol.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Overl0ck/Game-rol/issues"
+  },
+  "homepage": "https://github.com/Overl0ck/Game-rol#readme"
 }
