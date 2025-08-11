@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 >nul
 setlocal enabledelayedexpansion
 
 :: Verificar si git está disponible
@@ -14,24 +15,26 @@ set "LOGFILE=git_commit_log.txt"
 :MENU
 cls
 echo ====================================
-echo         MENU GIT BÁSICO
+echo         MENÚ GIT BÁSICO
 echo ====================================
 echo 1. Ver estado del repositorio (git status)
 echo 2. Actualizar desde remoto (git pull)
 echo 3. Añadir cambios (git add .)
 echo 4. Hacer commit
 echo 5. Subir cambios al repositorio (git push)
-echo 6. Salir
+echo 6. Ver historial de commits (git log)
+echo 7. Salir
 echo.
 
-set /p option=Selecciona una opción [1-6]: 
+set /p option=Selecciona una opción [1-7]: 
 
 if "%option%"=="1" goto STATUS
 if "%option%"=="2" goto PULL
 if "%option%"=="3" goto ADD
 if "%option%"=="4" goto COMMIT
 if "%option%"=="5" goto PUSH
-if "%option%"=="6" goto FIN
+if "%option%"=="6" goto LOG
+if "%option%"=="7" goto FIN
 
 echo.
 echo Opción inválida. Intenta de nuevo.
@@ -68,17 +71,40 @@ if "%commitmsg%"=="" (
     echo.
     git commit -m "%commitmsg%"
     if not errorlevel 1 (
-        :: Guardar información en log si el commit fue exitoso
         echo [%DATE% %TIME%] Usuario: %USERNAME% >> %LOGFILE%
         echo Mensaje: %commitmsg% >> %LOGFILE%
-        
-        :: Obtener rama actual
         for /f "delims=* " %%B in ('git branch ^| find "*"') do set BRANCH=%%B
         echo Rama: !BRANCH! >> %LOGFILE%
-
-        :: Guardar estado corto de los archivos
         echo Archivos modificados: >> %LOGFILE%
         git status -s >> %LOGFILE%
-
         echo ----------------------------- >> %LOGFILE%
-        echo Log guardado en %LOGFILE%
+        echo Log guardado correctamente.
+    )
+)
+pause
+goto MENU
+
+:PUSH
+echo.
+echo Subiendo cambios al repositorio remoto...
+git push origin main
+pause
+goto MENU
+
+:LOG
+echo.
+git log --oneline --graph --decorate --all
+pause
+goto MENU
+
+:FIN
+cls
+echo ====================================
+echo        ¡Hasta luego, desarrollador!
+echo   Código limpio, commits seguros.
+echo ====================================
+echo.
+echo [%DATE% %TIME%] Usuario: %USERNAME% salió del menú Git >> %LOGFILE%
+echo ----------------------------- >> %LOGFILE%
+pause
+exit /b

@@ -1,0 +1,14 @@
+[22/06/2025  0:08:05,29] Usuario: m0rti salió del menú Git 
+----------------------------- 
+[22/06/2025 21:19:15,69] Usuario: m0rti 
+Mensaje: Nuevas Cartas 
+Rama: main 
+Archivos modificados: 
+ M menu_git.bat
+ M start.bat
+?? git_commit_log.txt
+----------------------------- 
+[22/06/2025 21:20:07,21] Usuario: m0rti salió del menú Git 
+----------------------------- 
+[27/06/2025 23:16:10,62] Usuario: m0rti salió del menú Git 
+----------------------------- 

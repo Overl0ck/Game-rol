@@ -76,6 +76,21 @@
         <p id="battle-description"></p>
         <div id="battle-events"></div>
         <ul id="battle-event-list"></ul>
+        <div class="battle-bars">
+          <div class="energy-bar-container">
+              <span id="enemyEnergyLabel" class="energy-label-enemy">Enemigo</span>
+              <div class="energy-bar-bg">
+                  <div id="enemyEnergyBar" class="energy-bar"></div>
+              </div>
+          </div>
+          <div class="energy-bar-container">
+              <span id="playerEnergyLabel" class="energy-label-player">Tú</span>
+              <div class="energy-bar-bg">
+                  <div id="playerEnergyBar" class="energy-bar player"></div>
+              </div>
+          </div>
+      </div>
+        <div id="enemyCardContainer"></div>
         <button id="battle-end-btn" class="fantasy-btn">Finalizar batalla</button>
       </div>
     </div>
@@ -94,7 +109,8 @@
       <div class="modal-content fantasy-modal" id="modal-tienda-content"></div>
     </div>
       
-    
+    <div id="playerAttackBonus"></div>
+
     <script src="js/game.js"></script>
     <script src="js/script.js"></script>
 </body>

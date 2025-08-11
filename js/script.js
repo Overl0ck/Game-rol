@@ -93,6 +93,13 @@ function shuffleDeck(deckArray) {
 
 // --- Eventos de botones ---
 startGameBtn.addEventListener('click', () => {
+    // Oculta la pantalla de inicio y muestra la de juego si existen
+    const pantallaInicio = document.getElementById('pantalla-inicio');
+    const pantallaJuego = document.getElementById('pantalla-juego');
+    if (pantallaInicio && pantallaJuego) {
+        pantallaInicio.style.display = 'none';
+        pantallaJuego.style.display = 'block';
+    }
     startGameBtn.style.display = 'none';
     drawCardBtn.style.display = 'inline-block';
     updateMessage("¡Juego iniciado! Saca tu primera carta.");
@@ -145,54 +152,18 @@ function drawRandomCard() {
         return;
     }
 
-    let drawnCard;
-    let attempts = 0;
-
-    do {
-        const randomIndex = Math.floor(Math.random() * playableDeck.length);
-        drawnCard = playableDeck[randomIndex];
-
-        // Ejemplo de restricción: "La espada" solo cada 10 turnos
-        if (
-            drawnCard.name === "La espada" &&
-            turnCounter - lastSwordTurn < 10
-        ) {
-            attempts++;
-            if (attempts > 20) {
-                logEvent('No se pudo encontrar una carta válida. Intenta reiniciar el mazo.');
-                return;
-            }
-            continue;
-        }
-
-        // Ejemplo de restricción: máximo 2 veces por carta
-        if (cardUsageCount[drawnCard.name] >= 2) {
-            attempts++;
-            if (attempts > 20) {
-                logEvent("No se pudo encontrar una carta válida. Intenta reiniciar el mazo.");
-                return;
-            }
-            continue;
-        }
-
-        playableDeck.splice(randomIndex, 1);
-        break;
-    } while (true);
-
-    if (drawnCard.name === "La espada") {
-        lastSwordTurn = turnCounter;
+    // Baraja el mazo si es la primera carta del ciclo
+    if (playableDeck.length === deckOfManyThings.length || playableDeck.length === majorArcanaTarot.length) {
+        shuffleDeck(playableDeck);
     }
 
-    if (!cardUsageCount[drawnCard.name]) {
-        cardUsageCount[drawnCard.name] = 0;
-    }
-    cardUsageCount[drawnCard.name]++;
+    // Saca la primera carta del mazo (ya barajado)
+    const card = playableDeck.shift();
+    drawnCards.push(card);
 
-    drawnCards.push(drawnCard);
-
-    displayCard(drawnCard);
-    handleCardEffect(drawnCard); // Esta función está en game.js
-    logEvent(`Has sacado la carta "${drawnCard.name}": ${drawnCard.description}`);
+    displayCard(card);
+    handleCardEffect(card); // Esta función está en game.js
+    logEvent(`Has sacado la carta "${card.name}": ${card.description}`);
     cardsDrawnThisTurn++;
 
     if (player.health <= 0) {
@@ -270,12 +241,45 @@ function displayCard(card) {
     // Efecto terrorífico para "La Vampira"
     if (card.name === "La Vampira") {
         cardElement.classList.add('vampira-efecto');
+        // Destello rojo
         const efecto = document.createElement('div');
         efecto.className = 'vampira-glow';
         cardElement.appendChild(efecto);
+        // Gotas de sangre animadas
+        for (let i = 0; i < 3; i++) {
+            const gota = document.createElement('div');
+            gota.className = 'vampira-blood';
+            gota.style.left = (30 + i*20) + '%';
+            gota.style.animationDelay = (0.2*i) + 's';
+            cardElement.appendChild(gota);
+        }
         setTimeout(() => {
             if (efecto.parentNode) efecto.parentNode.removeChild(efecto);
             cardElement.classList.remove('vampira-efecto');
+            cardElement.querySelectorAll('.vampira-blood').forEach(el => el.remove());
+        }, 1200);
+    }
+
+    // Efecto visual para "Los Zombies"
+    if (card.name === "Los Zombies") {
+        cardElement.classList.add('zombie-efecto');
+        // Manos de zombie y niebla verde
+        const manos = document.createElement('div');
+        manos.className = 'zombie-hands';
+        manos.innerHTML = `
+            <svg width="80" height="40" viewBox="0 0 80 40">
+                <path d="M10,40 Q15,20 20,40 Q25,20 30,40 Q35,20 40,40 Q45,20 50,40 Q55,20 60,40 Q65,20 70,40" stroke="#3aff3a" stroke-width="6" fill="none"/>
+            </svg>
+        `;
+        cardElement.appendChild(manos);
+        const niebla = document.createElement('div');
+        niebla.className = 'zombie-fog';
+        cardElement.appendChild(niebla);
+        cardElement.classList.add('zombie-shake');
+        setTimeout(() => {
+            manos.remove();
+            niebla.remove();
+            cardElement.classList.remove('zombie-efecto', 'zombie-shake');
         }, 1200);
     }
 
@@ -413,6 +417,43 @@ function displayCard(card) {
             cardElement.classList.remove('caballero-efecto');
         }, 1100);
     }
+
+    // Efecto visual para "El Tiempo"
+    if (card.name === "El Tiempo") {
+        cardElement.classList.add('tiempo-efecto');
+        // SVG de reloj de arena animado
+        const reloj = document.createElement('div');
+        reloj.className = 'tiempo-reloj';
+        reloj.innerHTML = `
+            <svg viewBox="0 0 60 90" width="60" height="90">
+                <g>
+                    <rect x="18" y="10" width="24" height="8" rx="4" fill="#ffe066" stroke="#bfa76a" stroke-width="2"/>
+                    <rect x="18" y="72" width="24" height="8" rx="4" fill="#ffe066" stroke="#bfa76a" stroke-width="2"/>
+                    <path d="M20,18 Q30,45 20,72" stroke="#bfa76a" stroke-width="4" fill="none"/>
+                    <path d="M40,18 Q30,45 40,72" stroke="#bfa76a" stroke-width="4" fill="none"/>
+                    <polygon class="arena-superior" points="24,22 36,22 30,40" fill="#ffe066" opacity="0.8"/>
+                    <polygon class="arena-inferior" points="24,78 36,78 30,60" fill="#ffe066" opacity="0.8"/>
+                    <rect x="28" y="40" width="4" height="20" rx="2" fill="#ffe066" opacity="0.7"/>
+                </g>
+            </svg>
+        `;
+        cardElement.appendChild(reloj);
+
+        // Animación de arena cayendo
+        reloj.querySelector('.arena-superior').animate([
+            { opacity: 0.8, transform: 'scaleY(1)' },
+            { opacity: 0.2, transform: 'scaleY(0.2)' }
+        ], { duration: 1200, fill: 'forwards' });
+        reloj.querySelector('.arena-inferior').animate([
+            { opacity: 0.2, transform: 'scaleY(0.2)' },
+            { opacity: 0.8, transform: 'scaleY(1)' }
+        ], { duration: 1200, fill: 'forwards' });
+
+        setTimeout(() => {
+            if (reloj.parentNode) reloj.parentNode.removeChild(reloj);
+            cardElement.classList.remove('tiempo-efecto');
+        }, 1300);
+    }
 }
 
 // --- Función para actualizar el mensaje ---
@@ -471,6 +512,66 @@ function animateTurnInfo() {
     void turnInfo.offsetWidth; // Forzar reflow
     turnInfo.classList.add('turn-animate');
 }
+
+// --- EFECTO VISUAL: ESTADO ENFERMO ---
+function aplicarEfectoEnfermo() {
+    const healthElem = document.getElementById('playerHealth');
+    if (!healthElem) return;
+    healthElem.classList.add('enfermo-glow');
+    if (!healthElem.querySelector('.enfermo-icon')) {
+        const icon = document.createElement('span');
+        icon.className = 'enfermo-icon';
+        icon.title = 'Enfermedad zombie';
+        healthElem.appendChild(icon);
+    }
+}
+
+function removerEfectoEnfermo() {
+    const healthElem = document.getElementById('playerHealth');
+    if (!healthElem) return;
+    healthElem.classList.remove('enfermo-glow');
+    const icon = healthElem.querySelector('.enfermo-icon');
+    if (icon) icon.remove();
+}
+
+// --- EFECTO VISUAL: ATAQUE ZOMBIE ---
+function animarAtaqueZombie() {
+    // Overlay verde
+    const overlay = document.createElement('div');
+    overlay.className = 'zombie-attack';
+    overlay.style.position = 'absolute';
+    overlay.style.left = 0;
+    overlay.style.top = 0;
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.pointerEvents = 'none';
+    overlay.style.zIndex = 99;
+    // Añadir arañazos aleatorios
+    for (let i = 0; i < 2 + Math.floor(Math.random()*2); i++) {
+        const scratch = document.createElement('div');
+        scratch.className = 'zombie-attack-scratch';
+        scratch.style.left = (10 + Math.random()*80) + '%';
+        scratch.style.top = (10 + Math.random()*60) + '%';
+        scratch.style.transform += ` rotate(${Math.random()*60-30}deg)`;
+        overlay.appendChild(scratch);
+    }
+    // Añadir overlay al área de cartas
+    const cardArea = document.getElementById('cardDisplay');
+    if (cardArea) {
+        cardArea.style.position = 'relative';
+        cardArea.appendChild(overlay);
+        setTimeout(() => {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 1100);
+    }
+}
+
+// --- Integración automática con el estado del jugador ---
+// Llama a estas funciones desde game.js cuando el jugador enferma o se cura.
+// Por ejemplo:
+//   aplicarEfectoEnfermo(); // cuando player.enfermo = true
+//   removerEfectoEnfermo(); // cuando player.enfermo = false
+//   animarAtaqueZombie();   // cuando los zombies atacan
 
 // --- Inicializar al cargar la página ---
 window.addEventListener('DOMContentLoaded', cargarDatosJuego);

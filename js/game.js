@@ -1,4 +1,4 @@
-// Atributos del personaje
+// --- ATRIBUTOS DEL JUGADOR Y ENEMIGO ---
 const player = {
     name: "Héroe",
     health: 100,
@@ -6,64 +6,95 @@ const player = {
     gold: 0,
     level: 1,
     inventory: [],
-    companion: null // o false, según tu estructura
+    companion: null,
+    enfermo: false
 };
 
-// Opciones de la tienda con iconos (puedes usar emojis o rutas a imágenes)
 const tiendaOpciones = [
     { nombre: "Poción de curación", precio: 200, descripcion: "Recupera 30 de salud.", icono: "🧉" },
-    { nombre: "Anillo mágico", precio: 500, descripcion: "Aumenta tu maná máximo.", icono: "💍" },
+    { nombre: "Antídoto", precio: 300, descripcion: "Cura la enfermedad zombie.", icono: "🧴" },
+    { nombre: "Colgante del Tiempo", precio: 500, descripcion: "Detiene el efecto de la carta El Tiempo si la posees.", icono: "🟢🔗", tipo: "objeto", usable: true },
     { nombre: "Espada Larga", precio: 800, descripcion: "Una espada larga de acero afilado.", icono: "🗡️", carta: "Espada Larga" }
 ];
 
-// Atributos del enemigo (se asignan al iniciar cada combate)
-let enemy = {
-    name: "",
-    health: 0,
-    attack: 0
-};
+let enemy = { name: "", health: 0, maxHealth: 0, attack: 0 };
+let companion = { active: false, name: "Caballero", bonus: 20 };
 
-// Atributos del caballero acompañante
-let companion = {
-    active: false,
-    name: "Caballero",
-    bonus: 10 // Daño extra que aporta en combate
-};
-
-
-
-// ...resto de tu código...
-
-// Función para actualizar los atributos del personaje en la interfaz
+// --- FUNCIONES DE INTERFAZ ---
 function updatePlayerStats() {
     document.getElementById('playerName').querySelector('span').textContent = player.name;
-    document.getElementById('playerHealth').querySelector('span').textContent = player.health;
+    const healthElem = document.getElementById('playerHealth');
+    let healthText = player.health;
+    if (player.enfermo) {
+        healthElem.classList.add('enfermo');
+        healthElem.title = '¡Estás enfermo por mordedura zombie!';
+        aplicarEfectoEnfermo && aplicarEfectoEnfermo();
+        healthText += ' 🤢';
+    } else {
+        healthElem.classList.remove('enfermo');
+        healthElem.title = '';
+        removerEfectoEnfermo && removerEfectoEnfermo();
+    }
+    healthElem.querySelector('span').textContent = healthText;
     document.getElementById('playerMana').querySelector('span').textContent = player.mana;
     document.getElementById('playerGold').querySelector('span').textContent = player.gold;
     document.getElementById('playerLevel').querySelector('span').textContent = player.level;
 }
 
-// Función para manejar los efectos de las cartas en el personaje
+function updatePlayerInventory() {
+    const inv = document.getElementById('playerInventory');
+    inv.innerHTML = '';
+    player.inventory.forEach((item, idx) => {
+        const li = document.createElement('li');
+        if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.alt = item.nombre;
+            img.style.width = "28px";
+            img.style.verticalAlign = "middle";
+            img.style.marginRight = "6px";
+            li.appendChild(img);
+        }
+        li.appendChild(document.createTextNode(item.nombre));
+        if (item.usable) {
+            const btn = document.createElement('button');
+            btn.textContent = "Usar";
+            btn.className = "fantasy-btn";
+            btn.style.marginLeft = "8px";
+            btn.onclick = () => usarObjetoInventario(idx);
+            li.appendChild(btn);
+        }
+        inv.appendChild(li);
+    });
+}
+
+function updateCompanionBox() {
+    const box = document.getElementById('companionBox');
+    if (player.companion === "caballero") {
+        box.innerHTML = `
+            <div class="companion-card">
+                <span class="companion-icon">🛡️</span>
+                <span class="companion-text">El Caballero te acompaña</span>
+            </div>
+        `;
+    } else {
+        box.innerHTML = '';
+    }
+}
+
+// --- EFECTOS DE CARTAS ---
 function handleCardEffect(card) {
     switch (card.name) {
-        case "La Ruina":
-            player.gold = 0;
-            logEvent("¡Has perdido todo tu oro!");
-            break;
         case "La Tienda":
-            // Mostrar opciones de la tienda
             logEvent("Te encuentras en un mercado .");
             break;
         case "El Vacío":
             if (player.level > 6) {
                 player.level -= 1;
                 logEvent("¡Has perdido 1 nivel!");
-            }
-            else {
+            } else {
                 logEvent("¡Consigues escapar del vacío!");
             }
-            break;
-           
             break;
         case "El Sabio":
             player.level += 1;
@@ -74,16 +105,14 @@ function handleCardEffect(card) {
             resolverCombate({ nombre: "Esqueleto", fuerza: 20 });
             return;
         case "El Troll":
-            // Solo aparece si el jugador es nivel 3 o superior
             if (player.level >= 3) {
                 iniciarCombate("Troll Gigante", 60, 25);
-                 resolverCombate({ nombre: "Troll", fuerza: 30 });
+                resolverCombate({ nombre: "Troll", fuerza: 30 });
             } else {
                 logEvent("¡El Troll se oculta en las sombras! Necesitas ser nivel 3 para enfrentarlo.");
             }
             return;
         case "La Dama Oscura":
-            // Solo aparece si el jugador es nivel 5 o superior
             if (player.level >= 4) {
                 iniciarCombate("Dama Oscura", 80, 30);
                 resolverCombate({ nombre: "Dama Oscura", fuerza: 40 });
@@ -92,37 +121,34 @@ function handleCardEffect(card) {
             }
             return;
         case "La Taberna":
-            // El jugador pierde salud al emborracharse
-            const danioEmborracharse = Math.floor(Math.random() * 20) + 1; // Daño aleatorio entre 1 y 20
+            const danioEmborracharse = Math.floor(Math.random() * 20) + 1;
             player.health -= danioEmborracharse;
             logEvent(`¡Te emborrachas en la taberna y pierdes ${danioEmborracharse} de salud!`);
             if (player.health <= 0) {
-                player.health = 0;  
+                player.health = 0;
                 logEvent("¡Game Over! Tu salud ha llegado a 0.");
                 mostrarPantallaGameOver();
                 return;
             }
             break;
         case "La Vampira":
-             //Una vampira muerde al jugador y le quita salud
-            // Daño aleatorio entre 10 y 30
             const danioVampira = Math.floor(Math.random() * 21) + 10;
             player.health = Math.max(0, player.health - danioVampira);
             logEvent(`¡La Vampira te ataca y te causa ${danioVampira} puntos de daño!`);
             updatePlayerStats();
-            break;                  
-                case "El Banquete":
-            if( player.health < 100) {
-                 // El jugador recupera salud al disfrutar del banquete
-            const saludRecuperada = Math.floor(Math.random() * 20) + 1; // Recupera entre 1 y 20 de salud
-            player.health = Math.min(100, player.health + saludRecuperada);
+            break;
+        case "El Banquete":
+            if (player.health < 100) {
+                const saludRecuperada = Math.floor(Math.random() * 20) + 1;
+                player.health = Math.min(100, player.health + saludRecuperada);
                 logEvent("¡Disfrutas de un banquete y recuperas salud!");
-            } 
-           
+            }
+            mostrarCartaBanquete();
             logEvent(`¡Has comido mucho y te sienta mal la comida! Por tus malos modales la dama se marcha`);
             break;
         case "El Caballero":
             player.companion = "caballero";
+            companion.active = true;
             logEvent("¡El Caballero te acompaña y luchará a tu lado!");
             updateCompanionBox();
             break;
@@ -130,153 +156,281 @@ function handleCardEffect(card) {
             if (!player.inventory.some(item => item.nombre === "Espada")) {
                 player.inventory.push({
                     nombre: "Espada",
-                    img: "img/cartas/espada.png"
+                    img: "img/cartas/espada.png",
+                    usable: false
                 });
                 logEvent("¡Has obtenido una espada! Se ha añadido a tu inventario.");
             }
             break;
+        case "El Tiempo":
+            if (player.inventory.some(item => item.nombre === "Colgante del Tiempo")) {
+                logEvent("¡El Colgante del Tiempo brilla y detiene el paso del tiempo! El efecto de la carta se anula.");
+                updateMessage("⏳ El Colgante del Tiempo te protege. El tiempo no avanza.");
+                break;
+            }
+            let segundosRestantes = 100;
+            updateMessage(`⏳ El Tiempo: El destino se acerca... Quedan ${segundosRestantes} segundos.`);
+            logEvent("¡El Tiempo ha comenzado! Cuando la cuenta atrás termine, el juego acabará.");
+            if (window.tiempoCuentaAtras) clearInterval(window.tiempoCuentaAtras);
+            const cardDisplay = document.getElementById('cardDisplay');
+          /*   cardDisplay.innerHTML = `
+                <div class="card tiempo-efecto" id="cartaElTiempo">
+                    <div class="tiempo-reloj">
+                        <svg viewBox="0 0 60 90" width="60" height="90">
+                            <g>
+                                <rect x="18" y="10" width="24" height="8" rx="4" fill="#ffe066" stroke="#bfa76a" stroke-width="2"/>
+                                <rect x="18" y="72" width="24" height="8" rx="4" fill="#ffe066" stroke="#bfa76a" stroke-width="2"/>
+                                <path d="M20,18 Q30,45 20,72" stroke="#bfa76a" stroke-width="4" fill="none"/>
+                                <path d="M40,18 Q30,45 40,72" stroke="#bfa76a" stroke-width="4" fill="none"/>
+                                <polygon id="arenaSuperior" points="24,22 36,22 30,40" fill="#ffe066" opacity="0.8"/>
+                                <polygon id="arenaInferior" points="24,78 36,78 30,60" fill="#ffe066" opacity="0.2"/>
+                                <rect id="arenaCaida" x="28" y="40" width="4" height="20" rx="2" fill="#ffe066" opacity="0.7"/>
+                            </g>
+                        </svg>
+                        <div id="tiempo-restante" style="text-align:center;font-size:1.2em;color:#bfa76a;margin-top:4px;">
+                            ${segundosRestantes}s
+                        </div>
+                    </div>
+                    <h3>El Tiempo</h3>
+                    <p>El destino se acerca...</p>
+                </div>
+            `; */
+            window.tiempoCuentaAtras = setInterval(() => {
+                segundosRestantes--;
+                updateMessage(`⏳ El Tiempo: El destino se acerca... Quedan ${segundosRestantes} segundos.`);
+                const tiempoRestanteElem = document.getElementById('tiempo-restante');
+                if (tiempoRestanteElem) tiempoRestanteElem.textContent = `${segundosRestantes}s`;
+                const arenaSuperior = document.getElementById('arenaSuperior');
+                const arenaInferior = document.getElementById('arenaInferior');
+                if (arenaSuperior && arenaInferior) {
+                    const opSup = Math.max(0.1, 0.8 * (segundosRestantes / 100));
+                    const opInf = Math.min(0.8, 0.8 * (1 - segundosRestantes / 100));
+                    arenaSuperior.setAttribute('opacity', opSup.toFixed(2));
+                    arenaInferior.setAttribute('opacity', opInf.toFixed(2));
+                }
+                const cartaTiempo = document.getElementById('cartaElTiempo');
+                if (segundosRestantes <= 3 && cartaTiempo) cartaTiempo.classList.add('tiempo-urgente');
+                if (segundosRestantes > 3 && cartaTiempo) cartaTiempo.classList.remove('tiempo-urgente');
+                if (segundosRestantes <= 0) {
+                    clearInterval(window.tiempoCuentaAtras);
+                    updateMessage("⏳ ¡El Tiempo ha terminado! El juego ha llegado a su fin.");
+                    logEvent("¡El Tiempo ha terminado! Fin del juego.");
+                    mostrarPantallaGameOver();
+                }
+            }, 1000);
+            break;
+        case "Los Zombies": {
+            player.enfermo = true;
+            const evento = Math.random();
+            if (evento < 0.33) {
+                const danio = Math.floor(Math.random() * 21) + 10;
+                player.health = Math.max(0, player.health - danio);
+                logEvent(`¡Los zombies te muerden! Recibes ${danio} de daño y caes enfermo. Solo una poción puede curarte.`);
+                updatePlayerStats();
+                mostrarAnimacionZombieAttack();
+            } else if (evento < 0.66) {
+                const danio = Math.floor(Math.random() * 11) + 1;
+                player.health = Math.max(0, player.health - danio);
+                const objetos = [
+                    { nombre: "Poción de curación", tipo: "objeto", usable: true },
+                    { nombre: "Antídoto", tipo: "objeto", usable: true },
+                    { nombre: "Oro", tipo: "oro", cantidad: 200 }
+                ];
+                const objeto = objetos[Math.floor(Math.random() * objetos.length)];
+                if (objeto.tipo === "oro") {
+                    player.gold += objeto.cantidad;
+                    logEvent(`¡Encuentras una bolsa con ${objeto.cantidad} de oro entre los restos de los zombies!`);
+                } else {
+                    player.inventory.push(objeto);
+                    logEvent(`¡Encuentras un objeto entre los zombies: ${objeto.nombre}!`);
+                }
+                updatePlayerStats();
+                updatePlayerInventory();
+            } else {
+                const perdida = Math.random();
+                if (perdida < 0.5 && player.gold > 0) {
+                    const oroPerdido = Math.min(player.gold, Math.floor(Math.random() * 101) + 50);
+                    player.gold -= oroPerdido;
+                    logEvent(`¡Escapas de los zombies, pero pierdes ${oroPerdido} de oro en la huida!`);
+                } else if (player.health > 10) {
+                    player.health -= 10;
+                    logEvent("¡Escapas de los zombies, pero te arañan y pierdes 10 de salud!");
+                } else {
+                    logEvent("¡Logras escapar de los zombies por poco! No recibes daño.");
+                }
+                updatePlayerStats();
+            }
+            break;
+        }
         default:
+            manejarNuevasCartas(card);
             logEvent(`La carta "${card.name}" no tiene un efecto directo.`);
             break;
     }
-
     updatePlayerStats();
     updatePlayerInventory();
     checkGameOver();
 }
 
-// Iniciar combate contra un enemigo
+// --- COMBATE ---
 function iniciarCombate(nombre, salud, ataque) {
     enemy.name = nombre;
     enemy.health = salud;
+    enemy.maxHealth = salud;
     enemy.attack = ataque;
-
     const battleModal = document.getElementById('battle-modal');
     const battleDescription = document.getElementById('battle-description');
     const battleEvents = document.getElementById('battle-events');
     const battleEndBtn = document.getElementById('battle-end-btn');
-
     battleDescription.textContent = `¡${enemy.name} aparece! Salud: ${enemy.health}`;
+    const tieneEspada = player.inventory.some(item => item.nombre === "Espada" || item.nombre === "Espada Larga");
     battleEvents.innerHTML = `
-        <button class="fantasy-btn" onclick="batallaAtacar()">Atacar</button>
+        <button class="fantasy-btn" onclick="batallaAtacar()">
+            Atacar ${tieneEspada ? '🗡️' : ''}
+        </button>
         <button class="fantasy-btn" onclick="batallaDefender()">Defender</button>
     `;
     battleEndBtn.style.display = 'none';
-
     eventosBatalla = [];
     refrescarEventosBatalla();
     battleModal.style.display = 'flex';
+    actualizarBarrasEnergia();
+    mostrarBonusEspada();
+    const enemyCardContainer = document.getElementById('enemyCardContainer');
+    const cartaEnemigo = deckOfManyThings.find(c => c.name === nombre) || { image: `img/enemigos/${nombre}.jpg`, name: nombre };
+    enemyCardContainer.innerHTML = `
+        <div class="card enemigo-carta-mini">
+            <img src="${cartaEnemigo.image}" alt="${cartaEnemigo.name}" class="card-image">
+            <h3>${cartaEnemigo.name}</h3>
+        </div>
+    `;
 }
 
-// Eventos de batalla
 let eventosBatalla = [];
-
-function logBattleEvent(message) {
-    eventosBatalla.push(message);
+function logBattleEvent(message, tipo = 'info') {
+    eventosBatalla.push({ msg: message, tipo });
     refrescarEventosBatalla();
 }
-
 function refrescarEventosBatalla() {
     const battleEventList = document.getElementById('battle-event-list');
     if (!battleEventList) return;
     battleEventList.innerHTML = '';
-    eventosBatalla.forEach(msg => {
+    eventosBatalla.forEach((ev, idx) => {
         const li = document.createElement('li');
-        li.textContent = msg;
+        li.textContent = ev.msg;
+        if (ev.tipo === 'player') li.classList.add('battle-player');
+        else if (ev.tipo === 'enemy') li.classList.add('battle-enemy');
+        else li.classList.add('battle-info');
+        if (idx === eventosBatalla.length - 1) li.classList.add('last-event');
         battleEventList.appendChild(li);
     });
-    const items = battleEventList.querySelectorAll('li');
-    if (items.length) items[items.length - 1].classList.add('last-event');
     battleEventList.scrollTop = battleEventList.scrollHeight;
 }
 
-// Acción: Atacar
+function efectoAtaqueEnemigo() {
+    const healthElem = document.getElementById('playerHealth');
+    if (!healthElem) return;
+    healthElem.classList.add('attack-flash', 'vibrate');
+    setTimeout(() => {
+        healthElem.classList.remove('attack-flash', 'vibrate');
+    }, 500);
+}
+function efectoAtaqueJugador() {
+    const bar = document.getElementById('enemyEnergyBar');
+    if (!bar) return;
+    bar.classList.add('attack-flash', 'vibrate');
+    setTimeout(() => {
+        bar.classList.remove('attack-flash', 'vibrate');
+    }, 500);
+}
+
 function batallaAtacar() {
     let danioJugador = 15;
-    if (player.inventory.some(item => item.nombre === "Espada")) {
+    let bonusCaballero = 0;
+    let penalizacionEnfermo = 0;
+    if (player.inventory.some(item => item.nombre === "Espada" || item.nombre === "Espada Larga")) {
         danioJugador += 10;
-        logBattleEvent("¡Usas tu espada para atacar con más fuerza!");
+        logBattleEvent("¡Usas tu espada para atacar con más fuerza! (+10)", 'player');
     }
-    if (companion.active) {
-        danioJugador += companion.bonus;
-        logBattleEvent("¡El Caballero ataca junto a ti y suma +" + companion.bonus + " de daño!");
+    if (player.companion === "caballero" || companion.active) {
+        bonusCaballero = companion.bonus;
+        danioJugador += bonusCaballero;
+        logBattleEvent("¡El Caballero lucha a tu lado y suma +" + bonusCaballero + " de daño!", 'player');
     }
+    if (player.enfermo) {
+        penalizacionEnfermo = 7;
+        danioJugador -= penalizacionEnfermo;
+        logBattleEvent("¡Estás enfermo y pierdes -" + penalizacionEnfermo + " de fuerza de ataque!", 'player');
+    }
+    danioJugador = Math.max(1, danioJugador);
     enemy.health -= danioJugador;
-    logBattleEvent(`¡Atacas a ${enemy.name} e infliges ${danioJugador} de daño!`);
-
+    logBattleEvent(`¡Atacas a ${enemy.name} e infliges ${danioJugador} de daño!`, 'player');
+    efectoAtaqueJugador();
+    actualizarBarrasEnergia();
+    mostrarBonusEspada();
     if (enemy.health <= 0) {
         enemy.health = 0;
-        logBattleEvent(`¡Has vencido a ${enemy.name}!`);
+        actualizarBarrasEnergia();
+        logBattleEvent(`¡Has vencido a ${enemy.name}!`, 'player');
         finalizarCombate(true);
         return;
     }
-
-    // El enemigo ataca si sigue vivo
     player.health -= enemy.attack;
-    logBattleEvent(`${enemy.name} te ataca y te inflige ${enemy.attack} de daño.`);
-
+    logBattleEvent(`${enemy.name} te ataca y te inflige ${enemy.attack} de daño.`, 'enemy');
+    efectoAtaqueEnemigo();
     updatePlayerStats();
     refrescarEventosTurno && refrescarEventosTurno();
-
+    actualizarBarrasEnergia();
     if (player.health <= 0) {
         player.health = 0;
-        logBattleEvent("¡Game Over! Tu salud ha llegado a 0.");
+        logBattleEvent("¡Game Over! Tu salud ha llegado a 0.", 'enemy');
         finalizarCombate(false);
     } else {
         actualizarDescripcionCombate();
     }
 }
 
-// Acción: Defender
 function batallaDefender() {
-    // El jugador se defiende, reduce el daño recibido
     let danioReducido = Math.floor(enemy.attack / 2);
     player.health -= danioReducido;
-    logBattleEvent(`¡Te defiendes! Solo recibes ${danioReducido} de daño de ${enemy.name}.`);
-
+    logBattleEvent(`¡Te defiendes! Solo recibes ${danioReducido} de daño de ${enemy.name}.`, 'player');
+    efectoAtaqueEnemigo();
     updatePlayerStats();
     refrescarEventosTurno && refrescarEventosTurno();
-
+    mostrarBonusEspada();
+    actualizarBarrasEnergia();
     if (player.health <= 0) {
         player.health = 0;
-        logBattleEvent("¡Game Over! Tu salud ha llegado a 0.");
+        logBattleEvent("¡Game Over! Tu salud ha llegado a 0.", 'enemy');
         finalizarCombate(false);
     } else {
         actualizarDescripcionCombate();
     }
 }
 
-// Actualiza la descripción del combate en el modal
 function actualizarDescripcionCombate() {
     const battleDescription = document.getElementById('battle-description');
     battleDescription.textContent = `¡${enemy.name} aparece! Salud: ${enemy.health}`;
 }
 
-// Añade la carta de victoria (puedes personalizarla)
+// --- FINALIZAR COMBATE Y CARTAS DE VICTORIA/DERROTA ---
 const cartaVictoria = {
     name: "Victoria",
     image: "img/victoria.jpg",
     description: "¡Has vencido en el combate! Recibes tu recompensa."
 };
-
-// Añade la carta de derrota
 const cartaDerrota = {
     name: "Derrota",
     image: "img/cartas/derrota.jpg",
     description: "¡Has sido derrotado en el combate! Intenta recuperarte y sigue adelante."
 };
-
-// Finaliza el combate: victoria o derrota
 function finalizarCombate(victoria) {
     const battleModal = document.getElementById('battle-modal');
     const battleEndBtn = document.getElementById('battle-end-btn');
     const battleEvents = document.getElementById('battle-events');
-
     if (victoria) {
-        // Subida de nivel y recompensa (como antes)
         player.level += 1;
         logBattleEvent("¡Subes de nivel! Ahora eres nivel " + player.level);
-
         const recompensasBatalla = [
             { tipo: "oro", cantidad: 1000, mensaje: "¡Has encontrado 1000 piezas de oro!" },
             { tipo: "mana", cantidad: 20, mensaje: "¡Recuperas 20 puntos de maná!" },
@@ -298,17 +452,13 @@ function finalizarCombate(victoria) {
                 logBattleEvent(recompensa.mensaje);
                 break;
         }
-
-        // Mostrar carta de victoria en el área de cartas
         mostrarCartaVictoria();
-
         battleEvents.innerHTML = `<span style="color:#7c4a02;font-weight:bold;">¡Has vencido al enemigo!</span>`;
     } else {
         mostrarCartaDerrota();
         battleEvents.innerHTML = `<span style="color:#b22222;font-weight:bold;">¡Has sido derrotado!</span>`;
     }
     battleEndBtn.style.display = 'inline-block';
-
     battleEndBtn.onclick = () => {
         battleModal.style.display = 'none';
         updatePlayerStats();
@@ -316,8 +466,6 @@ function finalizarCombate(victoria) {
         checkGameOver();
     };
 }
-
-// Función para mostrar la carta de victoria en el área de cartas
 function mostrarCartaVictoria() {
     const cardDisplay = document.getElementById('cardDisplay');
     cardDisplay.innerHTML = `
@@ -327,19 +475,13 @@ function mostrarCartaVictoria() {
             <p>${cartaVictoria.description}</p>
         </div>
     `;
-
-    // Efecto visual: destello dorado animado
     const efecto = document.createElement('div');
     efecto.className = 'victoria-glow';
     cardDisplay.appendChild(efecto);
-
-    // Elimina el efecto tras 1.5s
     setTimeout(() => {
         if (efecto.parentNode) efecto.parentNode.removeChild(efecto);
     }, 1500);
 }
-
-// Función para mostrar la carta de derrota en el área de cartas
 function mostrarCartaDerrota() {
     const cardDisplay = document.getElementById('cardDisplay');
     cardDisplay.innerHTML = `
@@ -349,228 +491,109 @@ function mostrarCartaDerrota() {
             <p>${cartaDerrota.description}</p>
         </div>
     `;
-
-    // Efecto visual: destello rojo animado
     const efecto = document.createElement('div');
     efecto.className = 'derrota-glow';
     cardDisplay.appendChild(efecto);
-
     setTimeout(() => {
         if (efecto.parentNode) efecto.parentNode.removeChild(efecto);
     }, 1500);
 }
 
-// Función para actualizar el inventario y mostrar el caballero si acompaña
-function updatePlayerInventory() {
-    const inv = document.getElementById('playerInventory');
-    inv.innerHTML = '';
-    player.inventory.forEach((item, idx) => {
-        const li = document.createElement('li');
-        if (item.image) {
-            const img = document.createElement('img');
-            img.src = item.image;
-            img.alt = item.nombre;
-            img.style.width = "28px";
-            img.style.verticalAlign = "middle";
-            img.style.marginRight = "6px";
-            li.appendChild(img);
-        }
-        li.appendChild(document.createTextNode(item.nombre));
-        // Si el objeto es usable, muestra botón
-        if (item.usable) {
-            const btn = document.createElement('button');
-            btn.textContent = "Usar";
-            btn.className = "fantasy-btn";
-            btn.style.marginLeft = "8px";
-            btn.onclick = () => usarObjetoInventario(idx);
-            li.appendChild(btn);
-        }
-        inv.appendChild(li);
-    });
-}
-
-// Función para usar la poción curativa
-function usarPocion(index) {
-    // Elimina la poción del inventario
-    player.inventory.splice(index, 1);
-    // Cura al jugador (por ejemplo, 30 puntos, sin pasar de 100)
-    const curacion = 30;
-    player.health = Math.min(100, player.health + curacion);
-    logEvent("¡Has usado una Poción de curación y recuperado " + curacion + " puntos de salud!");
-    updatePlayerStats();
-    updatePlayerInventory();
-}
-
-// Función para comprobar si el jugador ha perdido
-function checkGameOver() {
-    if (player.health <= 0) {
-        player.health = 0;
-        updatePlayerStats();
-        logEvent("¡Game Over! Tu salud ha llegado a 0.");
-        mostrarPantallaGameOver();
+// --- INVENTARIO Y USO DE OBJETOS ---
+function usarObjetoInventario(idx) {
+    const item = player.inventory[idx];
+    if (!item.usable) {
+        logEvent("Este objeto no se puede usar.");
+        return;
     }
-}
-
-// Función para mostrar la pantalla de fin de juego (modal)
-function mostrarPantallaGameOver() {
-    document.getElementById('drawCardBtn').disabled = true;
-    document.getElementById('resetDeckBtn').disabled = true;
-    document.getElementById('restartGameBtn').disabled = true;
-    document.getElementById('gameover-modal').style.display = 'flex';
-}
-
-// Botón de reinicio en el modal de Game Over
-document.getElementById('restartGameBtnModal').addEventListener('click', () => {
-    location.reload();
-});
-
-function updateCompanionBox() {
-    const box = document.getElementById('companionBox');
-    if (player.companion === "caballero") {
-        box.innerHTML = `
-            <div class="companion-card">
-                <span class="companion-icon">🛡️</span>
-                <span class="companion-text">El Caballero te acompaña</span>
-            </div>
-        `;
-    } else {
-        box.innerHTML = '';
-    }
-}
-
-// Por ejemplo, en initializeDeck o función de reinicio:
-companion.active = false;
-updateCompanionBox();
-
-function mostrarSituacion() {
-    const situationModal = document.getElementById('situation-modal');
-    const situationDescription = document.getElementById('situation-description');
-    const situationOptions = document.getElementById('situation-options');
-
-    // Ejemplo de situación y opciones
-    situationDescription.textContent = "Te encuentras en una encrucijada. ¿Qué camino eliges?";
-    situationOptions.innerHTML = `
-        <button class="fantasy-btn" onclick="elegirOpcionSituacion('bosque')">Camino del bosque 🌲</button>
-        <button class="fantasy-btn" onclick="elegirOpcionSituacion('pueblo')">Ir al pueblo 🏘️</button>
-    `;
-
-    situationModal.style.display = 'flex';
-}
-
-// Función para gestionar la elección del jugador
-function elegirOpcionSituacion(opcion) {
-    const situationModal = document.getElementById('situation-modal');
-    situationModal.style.display = 'none';
-
-    switch(opcion) {
-        case 'bosque':
-            logEvent("Has elegido adentrarte en el bosque. Puede que encuentres peligros... o tesoros.");
-            player.health = Math.max(1, player.health - 10);
-            player.gold += 500;
-            logEvent("Pierdes 10 puntos de salud pero encuentras 500 piezas de oro entre los árboles.");
-            break;
-        case 'pueblo':
-            logEvent("Decides ir al pueblo. Allí puedes descansar y reponer fuerzas.");
-            player.health = Math.min(100, player.health + 20);
-            logEvent("Recuperas 20 puntos de salud tras descansar en la posada.");
-            break;
-        case 'pocion':
-            if (player.gold >= 200) {
-                player.gold -= 200;
-                player.inventory.push({ nombre: "Poción de curación" });
-                logEvent("Compras una poción y la añades a tu inventario.");
+    switch (item.nombre) {
+        case "Antídoto":
+            if (player.enfermo) {
+                player.enfermo = false;
+                logEvent("¡Usaste el Antídoto y te has curado de la enfermedad zombie!");
+                removerEfectoEnfermo && removerEfectoEnfermo();
             } else {
-                logEvent("No tienes suficiente oro para comprar la poción.");
+                logEvent("El Antídoto no tiene efecto, no estás enfermo.");
             }
+            player.inventory.splice(idx, 1);
             break;
-        case 'rechazar':
-            logEvent("Rechazas la oferta del mercader y sigues tu camino.");
+        case "Poción de curación":
+            player.health = Math.min(100, player.health + 30);
+            if (player.enfermo) {
+                player.enfermo = false;
+                logEvent("¡La poción cura tu enfermedad zombie!");
+                removerEfectoEnfermo && removerEfectoEnfermo();
+            } else {
+                logEvent("Usaste una Poción de curación y recuperaste 30 de salud.");
+            }
+            player.inventory.splice(idx, 1);
             break;
-        // ...más casos...
+        case "Anillo mágico":
+            player.mana = Math.min(100, player.mana + 20);
+            logEvent("Usaste el Anillo mágico y recuperaste 20 de maná.");
+            player.inventory.splice(idx, 1);
+            break;
+        case "Espada Larga":
+            logEvent("Equipaste la Espada Larga. ¡Tu daño aumenta!");
+            item.usable = false;
+            break;
+        default:
+            logEvent("Este objeto no tiene un uso especial.");
     }
     updatePlayerStats();
     updatePlayerInventory();
 }
 
-const situaciones = [
-    {
-        descripcion: "Te encuentras en una encrucijada. ¿Qué camino eliges?",
-        opciones: [
-            { texto: "Camino del bosque 🌲", id: "bosque" },
-            { texto: "Ir al pueblo 🏘️", id: "pueblo" }
-        ]
-    },
-    {
-        descripcion: "Un mercader ambulante te ofrece un trato.",
-        opciones: [
-            { texto: "Comprar una poción (pierdes 200 oro, ganas una poción)", id: "pocion" },
-            { texto: "Rechazar la oferta", id: "rechazar" }
-        ]
+// --- BARRAS DE ENERGÍA ---
+function actualizarBarrasEnergia() {
+    const barE = document.getElementById('enemyEnergyBar');
+    const labelE = document.getElementById('enemyEnergyLabel');
+    if (barE && labelE) {
+        const porcentajeE = Math.max(0, Math.round((enemy.health / enemy.maxHealth) * 100));
+        barE.style.width = porcentajeE + '%';
+        labelE.textContent = `Enemigo: ${enemy.health} / ${enemy.maxHealth}`;
     }
-    // Puedes añadir más situaciones aquí
-];
-
-function mostrarSituacionAleatoria() {
-    const situacion = situaciones[Math.floor(Math.random() * situaciones.length)];
-    const situationModal = document.getElementById('situation-modal');
-    const situationDescription = document.getElementById('situation-description');
-    const situationOptions = document.getElementById('situation-options');
-
-    situationDescription.textContent = situacion.descripcion;
-    situationOptions.innerHTML = situacion.opciones.map(op =>
-        `<button class="fantasy-btn" onclick="elegirOpcionSituacion('${op.id}')">${op.texto}</button>`
-    ).join('');
-
-    situationModal.style.display = 'flex';
+    const barP = document.getElementById('playerEnergyBar');
+    const labelP = document.getElementById('playerEnergyLabel');
+    if (barP && labelP) {
+        const porcentajeP = Math.max(0, Math.round((player.health / 100) * 100));
+        barP.style.width = porcentajeP + '%';
+        labelP.textContent = `Tú: ${player.health} / 100`;
+    }
 }
-
-resetDeckBtn.addEventListener('click', () => {
-    // ...código de cambio de turno...
-    mostrarSituacionAleatoria();
-});
-
-function drawCard() {
-    const MIN_GOLD_FOR_RUINA = 1000; // Oro mínimo para que salga "La Ruina"
-    let cardIndex = -1;
-    let intentos = 0;
-    let cartaValida = false;
-
-    while (!cartaValida && intentos < playableDeck.length) {
-        cardIndex = 0; // Siempre miramos la primera carta del mazo
-        const card = playableDeck[cardIndex];
-
-        // Control para "La Ruina"
-        if (card.name === "La Ruina" && player.gold < MIN_GOLD_FOR_RUINA) {
-            playableDeck.push(playableDeck.shift()); // Mueve la carta al final
-        }
-        // Control para "La Tienda"
-        else if (card.name === "La Tienda" && player.gold <= 0) {
-            playableDeck.push(playableDeck.shift()); // Mueve la carta al final
-        }
-        // Si la carta es válida
-        else {
-            cartaValida = true;
-        }
-        intentos++;
-    }
-
-    // Si después de recorrer el mazo no hay carta válida, saca la primera (para evitar bucles infinitos)
-    const card = playableDeck.shift();
-    displayCard(card);
-    handleCardEffect(card);
-    cardsDrawnThisTurn++;
-    updateTurnInfo(turnCounter, MAX_TURNS, cardsDrawnThisTurn, MAX_CARDS_PER_TURN);
-    if (cardsDrawnThisTurn >= MAX_CARDS_PER_TURN) {
-        document.getElementById('drawCardBtn').disabled = true;
-        document.getElementById('resetDeckBtn').style.display = 'block';
+function mostrarBonusEspada() {
+    const bonusDiv = document.getElementById('playerAttackBonus');
+    if (!bonusDiv) return;
+    if (player.inventory.some(item => item.nombre === "Espada" || item.nombre === "Espada Larga")) {
+        bonusDiv.textContent = "¡Bonus de ataque por espada equipado! (+10)";
+        bonusDiv.classList.add('active');
+    } else {
+        bonusDiv.textContent = "";
+        bonusDiv.classList.remove('active');
     }
 }
 
+// --- ANIMACIONES ---
+function mostrarAnimacionZombieAttack() {
+    const cardDisplay = document.getElementById('cardDisplay');
+    if (!cardDisplay) return;
+    const zombieAnim = document.createElement('div');
+    zombieAnim.className = 'zombie-attack-anim';
+    zombieAnim.innerHTML = '🧟‍♂️';
+    cardDisplay.appendChild(zombieAnim);
+    setTimeout(() => {
+        zombieAnim.classList.add('zombie-attack-anim-out');
+        setTimeout(() => {
+            if (zombieAnim.parentNode) zombieAnim.parentNode.removeChild(zombieAnim);
+        }, 600);
+    }, 900);
+}
 
-
-// Mostrar modal de tienda mejorado
+// --- TIENDA ---
 function mostrarModalTienda() {
-    let html = `<h2>Tienda de Objetos</h2><ul style="list-style:none;padding:0;">`;
+    let html = `<h2>Tienda de Objetos</h2>
+    <div style="max-height: 340px; overflow-y: auto; margin-bottom: 12px;">
+        <ul style="list-style:none;padding:0;">`;
     tiendaOpciones.forEach((obj, idx) => {
         html += `
             <li>
@@ -586,36 +609,32 @@ function mostrarModalTienda() {
             </li>
         `;
     });
-    html += `</ul>
+    html += `</ul></div>
         <button class="fantasy-btn" onclick="cerrarModalTienda()">Cerrar</button>
     `;
     document.getElementById('modal-tienda-content').innerHTML = html;
     document.getElementById('modal-tienda').style.display = 'flex';
 }
-
 function cerrarModalTienda() {
     document.getElementById('modal-tienda').style.display = 'none';
 }
-
 function comprarObjetoTienda(idx) {
     const obj = tiendaOpciones[idx];
     if (player.gold >= obj.precio) {
         player.gold -= obj.precio;
-        // Si es un arma, añade la carta de arma al inventario
         if (obj.carta) {
-            const cartaArma = armasTienda.find(a => a.name === obj.carta);
+            const cartaArma = armasTienda && armasTienda.find(a => a.name === obj.carta);
             if (cartaArma) {
-                player.inventory.push({ 
-                    nombre: cartaArma.name, 
-                    image: cartaArma.image, 
-                    tipo: "arma", 
-                    usable: true 
+                player.inventory.push({
+                    nombre: cartaArma.name,
+                    image: cartaArma.image,
+                    tipo: "arma",
+                    usable: true
                 });
             } else {
                 player.inventory.push({ nombre: obj.nombre, tipo: "objeto", usable: true });
             }
         } else {
-            // Si es poción o anillo, marca como usable
             player.inventory.push({ nombre: obj.nombre, tipo: "objeto", usable: true });
         }
         logEvent(`Has comprado ${obj.nombre} por ${obj.precio} oro.`);
@@ -628,67 +647,118 @@ function comprarObjetoTienda(idx) {
     }
 }
 
-// Función para usar un objeto del inventario
-function usarObjetoInventario(idx) {
-    const item = player.inventory[idx];
-    if (!item.usable) {
-        logEvent("Este objeto no se puede usar.");
-        return;
+// --- SISTEMA DE MENSAJES ---
+function updateMessage(text, duracion = 5000) {
+    const messageBox = document.getElementById('messageBox');
+    messageBox.textContent = text;
+    messageBox.classList.add('show');
+    setTimeout(() => {
+        messageBox.classList.remove('show');
+    }, duracion);
+}
+
+// --- GAME OVER ---
+function checkGameOver() {
+    if (player.health <= 0) {
+        player.health = 0;
+        updatePlayerStats();
+        logEvent("¡Game Over!");
+        mostrarPantallaGameOver();
     }
-    switch (item.nombre) {
-        case "Poción de curación":
-            player.health = Math.min(100, player.health + 30);
-            logEvent("Usaste una Poción de curación y recuperaste 30 de salud.");
-            player.inventory.splice(idx, 1); // Elimina la poción usada
+}
+function mostrarPantallaGameOver() {
+    document.getElementById('drawCardBtn').disabled = true;
+    document.getElementById('resetDeckBtn').disabled = true;
+    document.getElementById('restartGameBtn').disabled = true;
+    document.getElementById('gameover-modal').style.display = 'flex';
+}
+document.getElementById('restartGameBtnModal').addEventListener('click', () => {
+    location.reload();
+});
+
+// --- SITUACIONES Y CARTAS NUEVAS ---
+const situaciones = [
+    {
+        descripcion: "Te encuentras en una encrucijada. ¿Qué camino eliges?",
+        opciones: [
+            { texto: "Camino del bosque 🌲", id: "bosque" },
+            { texto: "Ir al pueblo 🏘️", id: "pueblo" }
+        ]
+    },
+    {
+        descripcion: "Un mercader ambulante te ofrece un trato.",
+        opciones: [
+            { texto: "Comprar una poción (pierdes 200 oro, ganas una poción)", id: "pocion" },
+            { texto: "Rechazar la oferta", id: "rechazar" }
+        ]
+    }
+];
+function mostrarSituacionAleatoria() {
+    const situacion = situaciones[Math.floor(Math.random() * situaciones.length)];
+    const situationModal = document.getElementById('situation-modal');
+    const situationDescription = document.getElementById('situation-description');
+    const situationOptions = document.getElementById('situation-options');
+    situationDescription.textContent = situacion.descripcion;
+    situationOptions.innerHTML = situacion.opciones.map(op =>
+        `<button class="fantasy-btn" onclick="elegirOpcionSituacion('${op.id}')">${op.texto}</button>`
+    ).join('');
+    situationModal.style.display = 'flex';
+}
+function elegirOpcionSituacion(opcion) {
+    const situationModal = document.getElementById('situation-modal');
+    situationModal.style.display = 'none';
+    switch (opcion) {
+        case 'bosque':
+            logEvent("Has elegido adentrarte en el bosque. Puede que encuentres peligros... o tesoros.");
+            player.health = Math.max(1, player.health - 10);
+            player.gold += 500;
+            logEvent("Pierdes 10 puntos de salud pero encuentras 500 piezas de oro entre los árboles.");
             break;
-        case "Anillo mágico":
-            player.mana = Math.min(100, player.mana + 20);
-            logEvent("Usaste el Anillo mágico y recuperaste 20 de maná.");
-            player.inventory.splice(idx, 1); // Elimina el anillo usado
+        case 'pueblo':
+            logEvent("Decides ir al pueblo. Allí puedes descansar y reponer fuerzas.");
+            player.health = Math.min(100, player.health + 20);
+            logEvent("Recuperas 20 puntos de salud tras descansar en la posada.");
             break;
-        case "Espada Larga":
-            logEvent("Equipaste la Espada Larga. ¡Tu daño aumenta!");
-            item.usable = false; // Solo se puede equipar una vez
+        case 'pocion':
+            if (player.gold >= 200) {
+                player.gold -= 200;
+                player.inventory.push({ nombre: "Poción de curación", usable: true });
+                logEvent("Compras una poción y la añades a tu inventario.");
+            } else {
+                logEvent("No tienes suficiente oro para comprar la poción.");
+            }
             break;
-        // Puedes añadir más casos para otros objetos
-        default:
-            logEvent("Este objeto no tiene un uso especial.");
+        case 'rechazar':
+            logEvent("Rechazas la oferta del mercader y sigues tu camino.");
+            break;
     }
     updatePlayerStats();
     updatePlayerInventory();
 }
 
-// Función para resolver un combate contra un enemigo
-function resolverCombate(enemigo) {
-    let ayudaCaballero = 0;
-    if (player.companion === "caballero") {
-        ayudaCaballero = 15;
-        logEvent("El Caballero interviene en la batalla y te protege (+15 defensa).");
-        const battleEvents = document.getElementById('battle-event-list');
-        if (battleEvents) {
-            const eventItem = document.createElement('li');
-            eventItem.textContent = "El Caballero interviene en la batalla y te protege (+15 defensa).";
-            battleEvents.appendChild(eventItem);
-            battleEvents.scrollTop = battleEvents.scrollHeight;
-        }
-    }
-    const danioRecibido = Math.max(0, enemigo.fuerza - ayudaCaballero);
 
-    // Si el jugador gana (por ejemplo, si danioRecibido es 0)
-    if (danioRecibido === 0) {
-        logEvent(`¡Has vencido a ${enemigo.nombre}!`);
-        // Busca la carta de victoria en tu mazo
-        const cartaVictoria = deckOfManyThings.find(c => c.name === "Victoria");
-        if (cartaVictoria) {
-            displayCard(cartaVictoria);
-        } else {
-            // Si no tienes una carta de victoria, muestra un mensaje
-            updateMessage("¡Victoria! Has ganado el combate.");
-        }
-        return;
-    }
 
-    player.health = Math.max(0, player.health - danioRecibido);
-    logEvent(`Has recibido ${danioRecibido} puntos de daño en el combate contra ${enemigo.nombre}.`);
-    updatePlayerStats();
+// --- UTILIDADES Y EVENTOS ---
+resetDeckBtn.addEventListener('click', () => {
+    // ...código de cambio de turno...
+    mostrarSituacionAleatoria();
+});
+document.getElementById('pauseGameBtn').addEventListener('click', pausarJuego);
+document.getElementById('resumeGameBtn').addEventListener('click', reanudarJuego);
+
+function pausarJuego() {
+    if (window.tiempoCuentaAtras) clearInterval(window.tiempoCuentaAtras);
+    logEvent("El juego ha sido pausado. Usa 'Continuar' para reanudar.");
+}
+function reanudarJuego() {
+    logEvent("El juego ha sido reanudado.");
+}
+function logEvent(msg) {
+    const eventLog = document.getElementById('eventLog');
+    if (eventLog) {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        eventLog.appendChild(li);
+        eventLog.scrollTop = eventLog.scrollHeight;
+    }
 }
