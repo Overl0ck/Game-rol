@@ -1,15 +1,48 @@
-************************************************    
-     Juego De Cartas
+# Game-rol
 
-*****************************************************
+Juego de rol de cartas desarrollado en HTML, CSS y JavaScript, ejecutable como aplicación de escritorio usando **Electron**.
 
+## 🚀 Requisitos previos
+- [Node.js](https://nodejs.org/) (incluye npm) instalado en tu sistema.
+- Git instalado si vas a clonar el repositorio.
 
+## 📥 Instalación
 
-******************************************************
+1. **Clonar el repositorio**
+   ```bash
+   git clone https://github.com/Overl0ck/Game-rol
+   cd Game-rol
+Instalar dependencias
 
+npm install
+▶️ Ejecutar el juego
+Una vez instaladas las dependencias, inicia el juego con:
 
+npm start
+Esto abrirá una ventana de escritorio con el juego cargado desde Electron.
 
-**************************************************************
+🖥 Empaquetar como aplicación (opcional)
+Si quieres generar un ejecutable para Windows, Linux o Mac, instala electron-builder:
 
+npm install electron-builder --save-dev
+Y añade al package.json:
 
+"scripts": {
+  "start": "electron .",
+  "build": "electron-builder"
+}
+Luego ejecuta:
 
+npm run build
+Esto creará una carpeta dist/ con el instalador.
+
+📂 Estructura del proyecto
+Game-rol/
+│
+├── index.html       # Juego principal
+├── main.js          # Código principal de Electron
+├── package.json     # Configuración de npm/Electron
+├── css/             # Estilos del juego
+├── js/              # Scripts del juego
+└── assets/          # Imágenes y recursos
+✉️ Autor: Overl0ck
