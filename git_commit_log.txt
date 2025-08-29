@@ -1,0 +1,10 @@
+[29/08/2025  7:55:45,58] Usuario: m0rti 
+Mensaje: DISEÑO 1 
+Rama: master 
+Archivos modificados: 
+?? git_commit_log.txt
+----------------------------- 
+[29/08/2025  7:56:05,82] Usuario: m0rti salió del menú Git 
+----------------------------- 
+[29/08/2025  8:00:17,80] Usuario: m0rti salió del menú Git 
+----------------------------- 
