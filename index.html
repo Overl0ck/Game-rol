@@ -2,40 +2,37 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Juego de Cartas vs IA</title>
+    <title>Juego de Cartas - VS IA</title>
     <link rel="stylesheet" href="style.css">
+    <script src="client.js" defer></script>
 </head>
 <body>
-    <h1>Juego de Cartas Demo</h1>
-
-    <div id="panel-juego">
-        <h2>Panel de juego</h2>
+    <h1>Juego de Cartas - Demo VS IA</h1>
+     <div id="logPanel">
+        <h3>Log de juego</h3>
         <div id="log"></div>
     </div>
 
-    <div id="jugador2" class="zona-jugador">
-        <h2>IA</h2>
-        <div id="estado-ia">
-            Salud: <span id="salud-ia"></span> | Inventario: <span id="inventario-ia"></span>
+    <div id="turnIndicator">Tu turno</div>
+
+    <div id="gameBoard">
+        <div id="opponentZone" class="zone opponent-zone">
+            <div class="opponent-attributes">
+                Salud IA: <span id="salud-ia">20</span> | Inventario: <span id="inventario-ia">Vacío</span>
+            </div>
+            <div class="battlefield row" id="cards-ia"></div>
         </div>
-        <div id="cartas-ia" class="cartas"></div>
-    </div>
 
-    <div id="zona-batalla">
-        <h2>Zona de batalla</h2>
-        <div class="cartas"></div>
-    </div>
+        <div id="battlefield" class="zone battlefield row"></div>
 
-    <div id="jugador1" class="zona-jugador">
-        <h2>Tus cartas</h2>
-        <div id="estado-jugador">
-            Salud: <span id="salud-jugador"></span> | Inventario: <span id="inventario-jugador"></span>
+        <div id="playerZone" class="zone player-zone">
+            <div class="player-attributes">
+                Salud: <span id="salud-jugador">20</span> | Inventario: <span id="inventario-jugador">Vacío</span>
+            </div>
+            <div class="hand" id="cards-jugador"></div>
         </div>
-        <div id="cartas-jugador" class="cartas"></div>
     </div>
 
-    <button id="turnoIA">Turno IA</button>
-
-    <script src="client.js"></script>
+   
 </body>
 </html>

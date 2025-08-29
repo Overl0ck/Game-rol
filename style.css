@@ -1,63 +1,214 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: Verdana, sans-serif;
+    background: #1e1e2f;
+    color: #f0f0f0;
     text-align: center;
-    background-color: #f8f8f8;
+    margin: 0;
+    padding: 0;
 }
 
-#panel-juego {
-    border: 1px solid #999;
-    width: 80%;
-    margin: 10px auto;
-    padding: 10px;
-    height: 150px;
-    overflow-y: auto;
-    background-color: #f0f0f0;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    font-weight: bolder;
-    text-align: center;
-    font-size: 14px;
-}
-#log div {
-    margin-bottom: 5px;
+h1, h2, h3 {
+    margin: 10px;
 }
 
-.zona-jugador, #zona-batalla {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 10px auto;
-    width: 80%;
-}
-
-.carta {
-    display: inline-block;
-    width: 200px;
-    height: 200px;
-    border: 1px solid black;
-    margin: 5px;
-    text-align: center;
-    vertical-align: top;
-    background-color: #f4f4f4;
-    line-height: 160px;
+#turnIndicator {
+    margin: 10px 0;
     font-weight: bold;
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.3s;
+    color: #ffd700;
 }
 
-.carta:hover {
+#gameBoard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    margin: 20px auto;
+    width: 90%;
+}
+
+.zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    border: 2px solid #444;
+    padding: 10px;
+    border-radius: 10px;
+    background: #2a2a3e;
+}
+
+.battlefield {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card {
+   display: inline-block;
+    width: 120px;
+    height: 160px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #f4f4f4;
+    cursor: pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.appear {
+    animation: appear 0.4s ease-out;
+}
+
+.card:hover {
     transform: rotateY(180deg);
 }
 
-.carta img {
+.card-front, .card-back {
+    position: absolute;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
 }
 
-#zona-batalla .carta {
-    background-color: #ffeb99;
+.card-front {
+    background: #fff;
+    color: #000;
 }
 
-.ataque { border-color: red; }
-.sanacion { border-color: green; }
-.accion { border-color: blue; }
+.card-container {
+    display: inline-block;
+    width: 120px;
+    height: 160px;
+    perspective: 1000px;
+    margin: 5px;
+}
+
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.card-inner.flip {
+    transform: rotateY(180deg);
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-front img {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.card-back img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 10px;
+}
+
+
+.card-back {
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    transform: rotateY(180deg);
+}
+
+
+.card-back {
+    background: #444;
+    color: #fff;
+    transform: rotateY(180deg);
+    font-weight: bold;
+}
+
+.player-zone .player-attributes, .opponent-zone .opponent-attributes {
+    margin-bottom: 10px;
+}
+
+#battlefield.attack {
+    animation: shake 0.3s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-10px); }
+    100% { transform: translateX(0); }
+}
+
+#battlefield.heal {
+    animation: glow 0.5s;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 0px yellow; }
+    to { box-shadow: 0 0 20px yellow; }
+}
+
+.hand {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 10px auto;
+}
+
+#logPanel {
+    width: 80%;
+    margin: 20px auto;
+    border: 1px solid #666;
+    background: #111;
+    padding: 10px;
+    height: 150px;
+    overflow-y: auto;
+    text-align: left;
+    font-size: 14px;
+}
+
+#log div {
+    margin-bottom: 5px;
+    color: #0f0;
+}
+
+.item {
+    background: #555;
+    padding: 2px 5px;
+    margin: 0 2px;
+    border-radius: 3px;
+    font-size: 12px;
+}
