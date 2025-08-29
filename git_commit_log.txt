@@ -8,3 +8,9 @@ Archivos modificados:
 ----------------------------- 
 [29/08/2025  8:00:17,80] Usuario: m0rti salió del menú Git 
 ----------------------------- 
+[29/08/2025  9:06:39,48] Usuario: m0rti 
+Mensaje: FUNCIONAL 
+Rama: main 
+Archivos modificados: 
+ M git_commit_log.txt
+----------------------------- 

@@ -1,5 +1,6 @@
 /* ---------------------------
    STYLE.CSS - Juego de Cartas
+   con barras de salud y energía
 --------------------------- */
 
 /* Reset básico */
@@ -84,14 +85,33 @@ h1 {
     width: 100%;
 }
 
-.opponent-zone {
-    background: #2a2a3f;
-    padding: 10px;
-    border-radius: 10px;
+.health-bar-container, .energy-bar-container {
+    width: 200px;
+    height: 20px;
+    background-color: #333;
     border: 2px solid #555;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 5px 0;
 }
 
-.player-zone {
+.health-bar, .energy-bar {
+    height: 100%;
+    transition: width 0.5s ease-in-out;
+}
+
+/* Colores salud */
+.health-bar {
+    background: linear-gradient(90deg, #4caf50, #2e7d32);
+}
+
+/* Colores energía */
+.energy-bar {
+    background: linear-gradient(90deg, #2196F3, #1976D2);
+}
+
+/* Zonas */
+.opponent-zone, .player-zone {
     background: #2a2a3f;
     padding: 10px;
     border-radius: 10px;
@@ -156,12 +176,11 @@ h1 {
     object-fit: cover;
 }
 
-/* Reverso de la carta */
 .card-back {
     transform: rotateY(180deg);
 }
 
-/* Efectos de ataque y curación en el battlefield */
+/* Efectos de ataque y curación */
 #battlefield.attack {
     animation: shake 0.3s;
 }
@@ -170,23 +189,11 @@ h1 {
     animation: pulse 0.5s;
 }
 
-/* Efecto daño IA */
-#opponentZone.damage {
+#opponentZone.damage, #playerZone.damage {
     animation: flashRed 0.3s;
 }
 
 @keyframes flashRed {
-    0% { background-color: #2a2a3f; }
-    50% { background-color: #8b0000; }
-    100% { background-color: #2a2a3f; }
-}
-
-/* Efecto daño Jugador */
-#playerZone.damage {
-    animation: flashRedPlayer 0.3s;
-}
-
-@keyframes flashRedPlayer {
     0% { background-color: #2a2a3f; }
     50% { background-color: #8b0000; }
     100% { background-color: #2a2a3f; }
@@ -217,9 +224,6 @@ h1 {
     object-fit: cover;
 }
 
-
-
-
 @keyframes shake {
     0% { transform: translateX(0); }
     25% { transform: translateX(-5px); }
@@ -232,4 +236,20 @@ h1 {
     0% { transform: scale(1); }
     50% { transform: scale(1.1); }
     100% { transform: scale(1); }
+}
+
+/* NUEVAS BARRAS DE ENERGÍA */
+/* Contenedor de atributos extendido */
+.player-attributes, .opponent-attributes {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+}
+
+/* Mostrar barra y texto juntos */
+.energy-container, .health-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
