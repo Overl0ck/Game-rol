@@ -1,111 +1,137 @@
-body {
-    font-family: Verdana, sans-serif;
-    background: #1e1e2f;
-    color: #f0f0f0;
-    text-align: center;
+/* ---------------------------
+   STYLE.CSS - Juego de Cartas
+--------------------------- */
+
+/* Reset básico */
+* {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    font-family: Verdana, sans-serif;
 }
 
-h1, h2, h3 {
-    margin: 10px;
+/* Body */
+body {
+    background: #1e1e2f;
+    color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
 }
 
-#turnIndicator {
-    margin: 10px 0;
-    font-weight: bold;
+/* Título */
+h1 {
+    margin-bottom: 20px;
+    color: #ffcc00;
+    text-shadow: 2px 2px 5px #000;
+}
+
+/* Log de juego */
+#logPanel {
+    width: 80%;
+    max-width: 800px;
+    background: #2b2b3f;
+    border: 2px solid #444;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 15px;
+}
+
+#logPanel h3 {
+    margin-bottom: 10px;
     color: #ffd700;
 }
 
+#log {
+    height: 150px;
+    overflow-y: auto;
+    background: #1f1f2d;
+    padding: 8px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+/* Indicadores de turno y ronda */
+#turnIndicator, #ronda {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 10px 0;
+    padding: 6px 12px;
+    border-radius: 5px;
+    background: #33334d;
+    color: #ffcc00;
+    text-align: center;
+    width: 200px;
+}
+
+/* Tablero */
 #gameBoard {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
-    margin: 20px auto;
     width: 90%;
+    max-width: 1000px;
+    gap: 20px;
 }
 
+/* Zonas de jugador e IA */
 .zone {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
-    border: 2px solid #444;
+}
+
+.opponent-zone {
+    background: #2a2a3f;
     padding: 10px;
     border-radius: 10px;
-    background: #2a2a3e;
+    border: 2px solid #555;
 }
 
+.player-zone {
+    background: #2a2a3f;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #555;
+}
+
+/* Atributos */
+.player-attributes, .opponent-attributes {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+/* Battlefield */
 .battlefield {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-.row {
+/* Mano del jugador */
+.hand {
     display: flex;
     justify-content: center;
     gap: 10px;
+    flex-wrap: wrap;
 }
 
-.card {
-   display: inline-block;
-    width: 120px;
-    height: 160px;
-    margin: 5px;
-    border: 1px solid black;
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: #f4f4f4;
-    cursor: pointer;
-    transform-style: preserve-3d;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.card img {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-.appear {
-    animation: appear 0.4s ease-out;
-}
-
-.card:hover {
-    transform: rotateY(180deg);
-}
-
-.card-front, .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 5px;
-}
-
-.card-front {
-    background: #fff;
-    color: #000;
-}
-
+/* Cartas */
 .card-container {
-    display: inline-block;
-    width: 120px;
-    height: 160px;
     perspective: 1000px;
-    margin: 5px;
+    width: 100px;
+    height: 140px;
+    cursor: pointer;
 }
 
 .card-inner {
+    position: relative;
     width: 100%;
     height: 100%;
-    position: relative;
     transition: transform 0.6s;
     transform-style: preserve-3d;
 }
@@ -118,97 +144,92 @@ h1, h2, h3 {
     position: absolute;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
     border-radius: 10px;
     overflow: hidden;
+    backface-visibility: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
 }
 
-.card-front img {
+.card-front img, .card-back img {
     width: 100%;
     height: 100%;
-    display: block;
+    object-fit: cover;
 }
 
-.card-back img {
-    width: 100%;
-    height: 100%;
-    display: block;
-    border-radius: 10px;
-}
-
-
+/* Reverso de la carta */
 .card-back {
-    background-color: #333;
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
     transform: rotateY(180deg);
 }
 
-
-.card-back {
-    background: #444;
-    color: #fff;
-    transform: rotateY(180deg);
-    font-weight: bold;
-}
-
-.player-zone .player-attributes, .opponent-zone .opponent-attributes {
-    margin-bottom: 10px;
-}
-
+/* Efectos de ataque y curación en el battlefield */
 #battlefield.attack {
     animation: shake 0.3s;
 }
 
+#battlefield.heal {
+    animation: pulse 0.5s;
+}
+
+/* Efecto daño IA */
+#opponentZone.damage {
+    animation: flashRed 0.3s;
+}
+
+@keyframes flashRed {
+    0% { background-color: #2a2a3f; }
+    50% { background-color: #8b0000; }
+    100% { background-color: #2a2a3f; }
+}
+
+/* Efecto daño Jugador */
+#playerZone.damage {
+    animation: flashRedPlayer 0.3s;
+}
+
+@keyframes flashRedPlayer {
+    0% { background-color: #2a2a3f; }
+    50% { background-color: #8b0000; }
+    100% { background-color: #2a2a3f; }
+}
+
+.used-cards-panel {
+    position: fixed;
+    bottom: 10px;
+    width: 150px;
+    max-height: 200px;
+    background: rgba(30, 30, 47, 0.8);
+    border: 2px solid #555;
+    border-radius: 10px;
+    padding: 5px;
+    overflow-y: auto;
+    font-size: 12px;
+    color: #ffd700;
+}
+
+#jugadorUsadas { left: 10px; }
+#iaUsadas { right: 10px; }
+
+.used-cards img {
+    width: 40px;
+    height: 56px;
+    margin: 2px;
+    border-radius: 5px;
+    object-fit: cover;
+}
+
+
+
+
 @keyframes shake {
     0% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    50% { transform: translateX(10px); }
-    75% { transform: translateX(-10px); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
     100% { transform: translateX(0); }
 }
 
-#battlefield.heal {
-    animation: glow 0.5s;
-}
-
-@keyframes glow {
-    from { box-shadow: 0 0 0px yellow; }
-    to { box-shadow: 0 0 20px yellow; }
-}
-
-.hand {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin: 10px auto;
-}
-
-#logPanel {
-    width: 80%;
-    margin: 20px auto;
-    border: 1px solid #666;
-    background: #111;
-    padding: 10px;
-    height: 150px;
-    overflow-y: auto;
-    text-align: left;
-    font-size: 14px;
-}
-
-#log div {
-    margin-bottom: 5px;
-    color: #0f0;
-}
-
-.item {
-    background: #555;
-    padding: 2px 5px;
-    margin: 0 2px;
-    border-radius: 3px;
-    font-size: 12px;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }

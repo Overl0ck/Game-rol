@@ -13,10 +13,21 @@ const inventarioJugadorSpan = document.getElementById('inventario-jugador');
 const saludIASpan = document.getElementById('salud-ia');
 const inventarioIASpan = document.getElementById('inventario-ia');
 const turnIndicator = document.getElementById('turnIndicator');
+const rondaSpan = document.getElementById('ronda');
+
+const jugadorCardsUsedContainer = document.getElementById('jugadorCardsUsed');
+const iaCardsUsedContainer = document.getElementById('iaCardsUsed');
 
 // Jugadores
 let jugador = { nombre: 'Tú', salud: 20, energia: 5, inventario: [] };
 let ia = { nombre: 'IA', salud: 20, energia: 5, inventario: [] };
+
+// Número de ronda
+let numeroRonda = 1;
+
+// Cartas usadas por cada jugador
+let cartasJugadasJugador = [];
+let cartasJugadasIA = [];
 
 // Cartas disponibles
 const cartasDisponibles = [
@@ -40,9 +51,14 @@ const cartasDisponibles = [
   { name: "Los Zombies", description: "Te encuentras con unos zombies...", image: "cartas/zombies.jpeg", type: "ataque" }
 ];
 
-// Mazos iniciales
-let mazoJugador = cartasDisponibles.slice(0, 5);
-let mazoIA = cartasDisponibles.slice(5, 10);
+// Función para barajar un array
+function barajarArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+}
 
 // Función log
 function agregarLog(texto) {
@@ -58,6 +74,7 @@ function actualizarEstado() {
     inventarioJugadorSpan.textContent = jugador.inventario.join(', ') || 'Vacío';
     saludIASpan.textContent = ia.salud;
     inventarioIASpan.textContent = ia.inventario.join(', ') || 'Vacío';
+    rondaSpan.textContent = numeroRonda;
 }
 
 // Crear carta HTML
@@ -68,16 +85,12 @@ function crearCarta(carta) {
     const cardInner = document.createElement('div');
     cardInner.classList.add('card-inner');
 
-    // Frente de la carta
-
     const cardFront = document.createElement('div');
     cardFront.classList.add('card-front');
     const imgFront = document.createElement('img');
     imgFront.src = carta.image;
     imgFront.title = carta.description;
     cardFront.appendChild(imgFront);
-
-    // Reverso de la carta
 
     const cardBack = document.createElement('div');
     cardBack.classList.add('card-back');
@@ -111,6 +124,18 @@ function actualizarCartasJugador(jugadorObj, mazo, contenedor, mostrar = true) {
     });
 }
 
+// Función para actualizar panel de cartas usadas
+function actualizarCartasUsadas(mazoUsadas, contenedorId) {
+    const contenedor = document.getElementById(contenedorId);
+    contenedor.innerHTML = '';
+    mazoUsadas.forEach(carta => {
+        const img = document.createElement('img');
+        img.src = carta.image;
+        img.title = carta.name;
+        contenedor.appendChild(img);
+    });
+}
+
 // Jugar carta
 function jugarCarta(carta, mazo, jugadorObj) {
     zonaBatalla.innerHTML = '';
@@ -123,12 +148,36 @@ function jugarCarta(carta, mazo, jugadorObj) {
 
     agregarLog(`${jugadorObj.nombre} juega: ${carta.name}`);
 
+    // Registrar cartas usadas
+    if (jugadorObj === jugador) {
+        cartasJugadasJugador.push(carta);
+        actualizarCartasUsadas(cartasJugadasJugador, 'jugadorCardsUsed');
+    } else {
+        cartasJugadasIA.push(carta);
+        actualizarCartasUsadas(cartasJugadasIA, 'iaCardsUsed');
+    }
+
     if (carta.type === 'ataque') {
         const objetivo = jugadorObj === jugador ? ia : jugador;
         const daño = Math.floor(Math.random() * 5) + 1;
         objetivo.salud -= daño;
-        zonaBatalla.classList.add('attack');
-        setTimeout(() => zonaBatalla.classList.remove('attack'), 300);
+
+        if (jugadorObj === jugador) {
+            zonaBatalla.classList.add('attack');
+            document.getElementById('opponentZone').classList.add('damage');
+            setTimeout(() => {
+                zonaBatalla.classList.remove('attack');
+                document.getElementById('opponentZone').classList.remove('damage');
+            }, 300);
+        } else {
+            zonaBatalla.classList.add('attack');
+            document.getElementById('playerZone').classList.add('damage');
+            setTimeout(() => {
+                zonaBatalla.classList.remove('attack');
+                document.getElementById('playerZone').classList.remove('damage');
+            }, 300);
+        }
+
         agregarLog(`${objetivo.nombre} recibe ${daño} de daño (Salud: ${objetivo.salud})`);
     } else if (carta.type === 'sanacion') {
         const curacion = Math.floor(Math.random() * 5) + 1;
@@ -144,6 +193,8 @@ function jugarCarta(carta, mazo, jugadorObj) {
     actualizarCartasJugador(jugador, mazoJugador, cartasJugador);
     actualizarCartasJugador(ia, mazoIA, cartasIA, false);
     actualizarEstado();
+
+    comprobarFinRonda();
 }
 
 // Turno IA
@@ -153,14 +204,47 @@ function turnoIA() {
         return;
     }
     turnIndicator.textContent = 'Turno IA';
-    const cartaIA = mazoIA[0];
+    const cartaIA = mazoIA[Math.floor(Math.random() * mazoIA.length)];
     setTimeout(() => {
         jugarCarta(cartaIA, mazoIA, ia);
         turnIndicator.textContent = 'Tu turno';
     }, 600);
 }
 
+// Repartir cartas al inicio de cada ronda
+let mazoJugador = [];
+let mazoIA = [];
+
+function repartirCartas() {
+    const cartasBarajadas = barajarArray([...cartasDisponibles]);
+    mazoJugador = cartasBarajadas.slice(0, 5);
+    mazoIA = cartasBarajadas.slice(5, 10);
+}
+
+// Comprobar fin de ronda
+function comprobarFinRonda() {
+    if (mazoJugador.length === 0 && mazoIA.length === 0) {
+        numeroRonda++;
+
+        // Limpiar log
+        log.innerHTML = '';
+
+        // Limpiar cartas usadas
+        cartasJugadasJugador = [];
+        cartasJugadasIA = [];
+        actualizarCartasUsadas(cartasJugadasJugador, 'jugadorCardsUsed');
+        actualizarCartasUsadas(cartasJugadasIA, 'iaCardsUsed');
+
+        agregarLog(`--- Comienza la ronda ${numeroRonda} ---`);
+        repartirCartas();
+        actualizarCartasJugador(jugador, mazoJugador, cartasJugador);
+        actualizarCartasJugador(ia, mazoIA, cartasIA, false);
+        actualizarEstado();
+    }
+}
+
 // Inicialización
+repartirCartas();
 actualizarCartasJugador(jugador, mazoJugador, cartasJugador);
 actualizarCartasJugador(ia, mazoIA, cartasIA, false);
 actualizarEstado();
