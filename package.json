@@ -8,7 +8,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "devDependencies": {
     "electron": "^37.4.0"
   },
@@ -71,5 +70,14 @@
     "universalify": "^0.1.2",
     "wrappy": "^1.0.2",
     "yauzl": "^2.10.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Overl0ck/Game-rol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Overl0ck/Game-rol/issues"
+  },
+  "homepage": "https://github.com/Overl0ck/Game-rol#readme",
+  "description": ""
 }

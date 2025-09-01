@@ -180,6 +180,74 @@ h1 {
     transform: rotateY(180deg);
 }
 
+/* NUEVOS ESTILOS PARA LA INTERFAZ DE CARTAS */
+
+/* Contenedor de atributos de la carta */
+.card-attributes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Estilo para el costo de energía */
+.card-cost {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    background-color: #2196F3;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white;
+    z-index: 10;
+}
+
+/* Estilo para el daño de ataque */
+.card-damage {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    background-color: #D32F2F;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white;
+    z-index: 10;
+}
+
+/* Estilo para la curación */
+.card-heal {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: white;
+    background-color: #4CAF50;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white;
+    z-index: 10;
+}
+
 /* Efectos de ataque y curación */
 #battlefield.attack {
     animation: shake 0.3s;
@@ -252,4 +320,138 @@ h1 {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+/* Barra de energía (añadir si no existe) */
+.energy-bar-container {
+  width: 200px;
+  height: 20px;
+  background-color: #2f2f3f;
+  border: 2px solid #465;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 5px 0;
+}
+
+.energy-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #2196F3, #1976D2);
+  transition: width 0.45s ease-in-out, background 0.25s linear;
+}
+
+/* Contenedores (ya incluídos en tu CSS pero por seguridad) */
+.energy-container, .health-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Estilos para la interfaz de la tienda */
+#tiendaPanel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    background-color: #2b2b3f;
+    border: 3px solid #ffcc00;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    z-index: 2000;
+}
+
+#tiendaItems {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.tienda-item {
+    background-color: #1e1e2f;
+    border: 2px solid #555;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.tienda-item:hover {
+    transform: scale(1.05);
+}
+
+.tienda-item h4 {
+    margin: 5px 0;
+}
+
+.tienda-item p {
+    font-size: 0.9em;
+    color: #ccc;
+}
+
+#cerrarTiendaBtn {
+    margin-top: 20px;
+    padding: 8px 16px;
+    background-color: #ffcc00;
+    color: #1e1e2f;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Estilos para la pantalla de Game Over */
+#gameOverScreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.gameOverContent {
+    text-align: center;
+    padding: 30px;
+    border-radius: 15px;
+    background-color: #2b2b3f;
+    border: 2px solid #ffcc00;
+    box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+}
+
+#gameOverMessage {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    color: #ffcc00;
+}
+
+#restartButton {
+    padding: 12px 24px;
+    font-size: 1.2em;
+    cursor: pointer;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+}
+
+#restartButton:hover {
+    background-color: #45a049;
+}
+
+/* Clase para ocultar el elemento */
+.hidden {
+    display: none !important;
 }

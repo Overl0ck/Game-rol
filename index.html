@@ -8,30 +8,43 @@
 </head>
 <body>
     <h1>Juego de Cartas - Demo VS IA</h1>
-     <div id="logPanel">
+    <div id="logPanel">
         <h3>Log de juego</h3>
         <div id="log"></div>
     </div>
 
     <div id="jugadorUsadas" class="used-cards-panel">
-    <h4>Cartas usadas (Jugador)</h4>
-    <div class="used-cards" id="jugadorCardsUsed"></div>
-</div>
+        <h4>Cartas usadas (Jugador)</h4>
+        <div class="used-cards" id="jugadorCardsUsed"></div>
+    </div>
 
-<div id="iaUsadas" class="used-cards-panel">
-    <h4>Cartas usadas (IA)</h4>
-    <div class="used-cards" id="iaCardsUsed"></div>
-</div>
-
+    <div id="iaUsadas" class="used-cards-panel">
+        <h4>Cartas usadas (IA)</h4>
+        <div class="used-cards" id="iaCardsUsed"></div>
+    </div>
 
     <div id="turnIndicator">Tu turno</div>
-    <div id="ronda">Ronda: 1</div> <!-- Nuevo elemento para mostrar el número de ronda -->
-
+    <div id="ronda">Ronda: 1</div>
 
     <div id="gameBoard">
         <div id="opponentZone" class="zone opponent-zone">
             <div class="opponent-attributes">
-                Salud IA: <span id="salud-ia">20</span> | Inventario: <span id="inventario-ia">Vacío</span>
+                Salud IA:
+                <div class="health-container">
+                    <div class="health-bar-container">
+                        <div id="salud-ia-bar" class="health-bar"></div>
+                    </div>
+                    <span id="salud-ia-text">20</span>
+                </div>
+
+                Energía IA:
+                <div class="energy-container">
+                    <div class="energy-bar-container">
+                        <div id="energia-ia-bar" class="energy-bar"></div>
+                    </div>
+                    <span id="energia-ia-text">5</span>
+                </div>
+                | Inventario: <span id="inventario-ia">Vacío</span> | Oro: <span id="oro-ia-text">10</span>
             </div>
             <div class="battlefield row" id="cards-ia"></div>
         </div>
@@ -40,12 +53,40 @@
 
         <div id="playerZone" class="zone player-zone">
             <div class="player-attributes">
-                Salud: <span id="salud-jugador">20</span> | Inventario: <span id="inventario-jugador">Vacío</span>
+                Salud:
+                <div class="health-container">
+                    <div class="health-bar-container">
+                        <div id="salud-jugador-bar" class="health-bar"></div>
+                    </div>
+                    <span id="salud-jugador-text">20</span>
+                </div>
+
+                Energía:
+                <div class="energy-container">
+                    <div class="energy-bar-container">
+                        <div id="energia-jugador-bar" class="energy-bar"></div>
+                    </div>
+                    <span id="energia-jugador-text">5</span>
+                </div>
+              | Inventario: <span id="inventario-jugador">Vacío</span> | Oro: <span id="oro-jugador-text">10</span>
             </div>
             <div class="hand" id="cards-jugador"></div>
         </div>
     </div>
 
-   
+    <div id="tiendaPanel" class="hidden">
+    <h3>La Tienda</h3>
+    <div id="tiendaItems"></div>
+    <button id="cerrarTiendaBtn">Cerrar</button>
+</div>
+
+
+    <div id="gameOverScreen" class="hidden">
+    <div class="gameOverContent">
+        <h2 id="gameOverMessage"></h2>
+        <button id="restartButton">Reiniciar Juego</button>
+    </div>
+</div>
+
 </body>
 </html>
