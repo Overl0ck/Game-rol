@@ -28,9 +28,9 @@ const tiendaItemsContainer = document.getElementById('tiendaItems');
 const cerrarTiendaBtn = document.getElementById('cerrarTiendaBtn');
 
 const objetosTienda = [
-    { nombre: "Espada Larga", costo: 5, tipo: "arma", descripcion: "Añade 2 de daño a tus ataques." },
-    { nombre: "Poción Curación", costo: 3, tipo: "pocion", descripcion: "Restaura 5 de salud." },
-    { nombre: "Anillo de Energía", costo: 8, tipo: "artefacto", descripcion: "Aumenta tu energía máxima en 1." },
+    { nombre: "Espada Larga", costo: 5, tipo: "arma", descripcion: "Añade 2 de daño a tus ataques.", imagen: "cartas/armas/espada.jpeg" },
+    { nombre: "Poción Curación", costo: 3, tipo: "pocion", descripcion: "Restaura 5 de salud.", imagen: "cartas/armas/pocion.jpg" },
+    { nombre: "Anillo de Energía", costo: 8, tipo: "artefacto", descripcion: "Aumenta tu energía máxima en 1.", imagen: "cartas/armas/anillo.jpg" },
 ];
 
 // Variables para Game Over
@@ -62,7 +62,7 @@ const cartasDisponibles = [
     { name: "La Visión", description: "Tienes una premonición sobre un evento importante.", image: "cartas/vision.jpeg", type: "accion", cost: 0 },
     { name: "El Troll Gigante", description: "Un Troll gigante te acecha.", image: "cartas/El Troll Gigante.jpeg", type: "ataque", cost: 3, damage: 5 },
     { name: "La Dama Oscura", description: "Una Dama Oscura te ataca.", image: "cartas/La Dama Oscura.jpeg", type: "ataque", cost: 2, damage: 4 },
-    { name: "La Taberna", description: "Te emborrachas en una Taberna y pierdes salud.", image: "cartas/la taberna.jpeg", type: "accion", cost: 1 },
+    { name: "La Taberna", description: "Te emborrachas en una Taberna y pierdes salud.", image: "cartas/la taberna.jpeg", type: "sanacion", cost: 1, heal: 3 },
     { name: "La Loca", description: "Una mujer loca hace amenazas en un mercadillo.", image: "cartas/loca.jpeg", type: "accion", cost: 0 },
     { name: "La Visita", description: "La Muerte te visita.", image: "cartas/visita.jpeg", type: "accion", cost: 1 },
     { name: "El Duelo", description: "Un mercenario te reta a un Duelo", image: "cartas/duelo.jpeg", type: "ataque", cost: 1, damage: 3 },
@@ -125,13 +125,50 @@ function actualizarBarrasEnergia() {
 }
 
 function actualizarEstado() {
-    inventarioJugadorSpan.textContent = jugador.inventario.join(', ') || 'Vacío';
-    inventarioIASpan.textContent = ia.inventario.join(', ') || 'Vacío';
-    oroJugadorText.textContent = jugador.oro;
-    oroIAText.textContent = ia.oro;
-    rondaSpan.textContent = numeroRonda;
-    actualizarBarrasSalud();
-    actualizarBarrasEnergia();
+    // Limpia el contenido del inventario del jugador
+    inventarioJugadorSpan.innerHTML = ''; 
+    
+    // Muestra cada objeto del inventario con su imagen
+    if (jugador.inventario.length > 0) {
+        jugador.inventario.forEach((item, index) => {
+            const itemImg = document.createElement('img');
+            itemImg.src = item.imagen;
+            itemImg.alt = item.nombre;
+            itemImg.title = item.nombre + ': ' + item.descripcion; // Agrega un tooltip con la descripción
+            itemImg.classList.add('inventario-item-mini'); // Añade una clase para el estilo
+            inventarioJugadorSpan.appendChild(itemImg);
+
+            // Si es un objeto "usables", añade el evento de clic
+            if (item.tipo === 'pocion' || item.tipo === 'artefacto') {
+                itemImg.addEventListener('click', () => {
+                    usarObjeto(item, index, jugador);
+                });
+            }
+        });
+    } else {
+        inventarioJugadorSpan.textContent = 'Vacío';
+    }
+
+    // El inventario de la IA también se actualiza para la consistencia
+    inventarioIASpan.innerHTML = '';
+    if (ia.inventario.length > 0) {
+        ia.inventario.forEach(item => {
+            const itemImg = document.createElement('img');
+            itemImg.src = item.imagen;
+            itemImg.alt = item.nombre;
+            itemImg.title = item.nombre;
+            itemImg.classList.add('inventario-item-mini');
+            inventarioIASpan.appendChild(itemImg);
+        });
+    } else {
+        inventarioIASpan.textContent = 'Vacío';
+    }
+
+    oroJugadorText.textContent = jugador.oro;
+    oroIAText.textContent = ia.oro;
+    rondaSpan.textContent = numeroRonda;
+    actualizarBarrasSalud();
+    actualizarBarrasEnergia();
 }
 
 function crearCarta(carta) {
@@ -213,134 +250,156 @@ function actualizarCartasUsadas(mazoUsadas, contenedorId) {
 }
 
 function jugarCarta(carta, mazo, jugadorObj) {
-    if (jugadorObj === jugador && !esTurnoJugador) {
-        agregarLog("No es tu turno. Por favor, espera.");
-        return;
-    }
-    if (jugadorObj === ia && esTurnoJugador) {
-        return;
-    }
+    if (jugadorObj === jugador && !esTurnoJugador) {
+        agregarLog("No es tu turno. Por favor, espera.");
+        return;
+    }
+    if (jugadorObj === ia && esTurnoJugador) {
+        return;
+    }
 
-    const costo = carta.cost || 0;
-    if (jugadorObj.energia < costo) {
-        agregarLog(`${jugadorObj.nombre} no tiene suficiente energía para jugar ${carta.name}.`);
-        if (jugadorObj === jugador) {
-            cambiarTurno();
-        }
-        return;
-    }
+    const costo = carta.cost || 0;
+    if (jugadorObj.energia < costo) {
+        agregarLog(`${jugadorObj.nombre} no tiene suficiente energía para jugar ${carta.name}.`);
+        if (jugadorObj === jugador) {
+            cambiarTurno();
+        }
+        return;
+    }
 
-    // Resta la energía y actualiza las barras
-    jugadorObj.energia -= costo;
-    actualizarBarrasEnergia();
+    // Resta la energía y actualiza las barras
+    jugadorObj.energia -= costo;
+    actualizarBarrasEnergia();
 
-    // Muestra la carta en el campo de batalla
-    zonaBatalla.innerHTML = '';
-    const cartaHTML = crearCarta(carta);
-    cartaHTML.querySelector('.card-inner').classList.add('flip');
-    zonaBatalla.appendChild(cartaHTML);
+    // Muestra la carta en el campo de batalla
+    zonaBatalla.innerHTML = '';
+    const cartaHTML = crearCarta(carta);
+    cartaHTML.querySelector('.card-inner').classList.add('flip');
+    zonaBatalla.appendChild(cartaHTML);
 
-    // Quita la carta del mazo del jugador
-    const index = mazo.findIndex(c => c.name === carta.name);
-    if (index > -1) mazo.splice(index, 1);
+    // Quita la carta del mazo del jugador
+    const index = mazo.findIndex(c => c.name === carta.name);
+    if (index > -1) mazo.splice(index, 1);
 
-    agregarLog(`${jugadorObj.nombre} juega: ${carta.name}`);
+    agregarLog(`${jugadorObj.nombre} juega: ${carta.name}`);
 
-    // Añade la carta a las cartas usadas
-    if (jugadorObj === jugador) {
-        cartasJugadasJugador.push(carta);
-        actualizarCartasUsadas(cartasJugadasJugador, 'jugadorCardsUsed');
-        accionesJugador--;
-    } else {
-        cartasJugadasIA.push(carta);
-        actualizarCartasUsadas(cartasJugadasIA, 'iaCardsUsed');
-        accionesIA--;
-    }
+    // Añade la carta a las cartas usadas
+    if (jugadorObj === jugador) {
+        cartasJugadasJugador.push(carta);
+        actualizarCartasUsadas(cartasJugadasJugador, 'jugadorCardsUsed');
+        accionesJugador--;
+    } else {
+        cartasJugadasIA.push(carta);
+        actualizarCartasUsadas(cartasJugadasIA, 'iaCardsUsed');
+        accionesIA--;
+    }
 
-    // Lógica de la carta según su tipo
-    if (carta.type === 'ataque') {
-        const objetivo = jugadorObj === jugador ? ia : jugador;
-        const daño = carta.damage;
-        objetivo.salud -= daño;
+    // Lógica de la carta según su tipo
+    if (carta.type === 'ataque') {
+        const objetivo = jugadorObj === jugador ? ia : jugador;
+        const daño = carta.damage;
+        let dañoTotal = daño;
 
-        if (jugadorObj === jugador) {
-            zonaBatalla.classList.add('attack');
-            document.getElementById('opponentZone').classList.add('damage');
-            setTimeout(() => {
-                zonaBatalla.classList.remove('attack');
-                document.getElementById('opponentZone').classList.remove('damage');
-            }, 300);
-        } else {
-            zonaBatalla.classList.add('attack');
-            document.getElementById('playerZone').classList.add('damage');
-            setTimeout(() => {
-                zonaBatalla.classList.remove('attack');
-                document.getElementById('playerZone').classList.remove('damage');
-            }, 300);
-        }
-        agregarLog(`${objetivo.nombre} recibe ${daño} de daño (Salud: ${objetivo.salud})`);
-    } else if (carta.type === 'sanacion') {
-        const curacion = carta.heal;
-        jugadorObj.salud = Math.min(20, jugadorObj.salud + curacion);
-        zonaBatalla.classList.add('heal');
-        setTimeout(() => zonaBatalla.classList.remove('heal'), 500);
-        agregarLog(`${jugadorObj.nombre} se cura ${curacion} (Salud: ${jugadorObj.salud})`);
-    } else if (carta.type === 'accion') {
-        jugadorObj.inventario.push(carta.name);
-        agregarLog(`${jugadorObj.nombre} obtiene: ${carta.name} (Inventario: ${jugadorObj.inventario.join(', ')})`);
-    } else if (carta.type === 'tienda'){
-        // Si el jugador humano usa la tienda
-        if (jugadorObj === jugador) {
-            agregarLog(`${jugadorObj.nombre} visita La Tienda.`);
-            mostrarTienda(jugadorObj);
-        } else {
-            // La IA descarta la carta de la tienda, por ahora no la usa
-            agregarLog(`${jugadorObj.nombre} descarta la carta de La Tienda.`);
-        }
-    }
+        // Aplica el daño extra de la espada si el jugador la tiene.
+        if (jugadorObj === jugador && jugador.inventario.some(item => item.tipo === 'arma')) {
+            dañoTotal += 2; // El daño extra de la Espada Larga
+            agregarLog("¡Tu Espada Larga añade 2 de daño extra!");
+        }
 
-    // Actualiza el estado y cambia el turno
-    actualizarBarrasSalud();
-    actualizarCartasJugador(jugador, mazoJugador, cartasJugador);
-    actualizarCartasJugador(ia, mazoIA, cartasIA, false);
-    
-    comprobarFinDeJuego();
-    // Si el juego no ha terminado, pasa el turno
-    if(jugador.salud > 0 && ia.salud > 0) {
-        cambiarTurno();
-    }
+        objetivo.salud -= dañoTotal;
+
+        if (jugadorObj === jugador) {
+            zonaBatalla.classList.add('attack');
+            document.getElementById('opponentZone').classList.add('damage');
+            setTimeout(() => {
+                zonaBatalla.classList.remove('attack');
+                document.getElementById('opponentZone').classList.remove('damage');
+            }, 300);
+        } else {
+            zonaBatalla.classList.add('attack');
+            document.getElementById('playerZone').classList.add('damage');
+            setTimeout(() => {
+                zonaBatalla.classList.remove('attack');
+                document.getElementById('playerZone').classList.remove('damage');
+            }, 300);
+        }
+        agregarLog(`${objetivo.nombre} recibe ${dañoTotal} de daño (Salud: ${objetivo.salud})`);
+    } else if (carta.type === 'sanacion') {
+        const curacion = carta.heal;
+        jugadorObj.salud = Math.min(20, jugadorObj.salud + curacion);
+        zonaBatalla.classList.add('heal');
+        setTimeout(() => zonaBatalla.classList.remove('heal'), 500);
+        agregarLog(`${jugadorObj.nombre} se cura ${curacion} (Salud: ${jugadorObj.salud})`);
+    } else if (carta.type === 'accion') {
+        // Lógica de acción para cartas que no se añaden al inventario.
+        agregarLog(`${jugadorObj.nombre} usa la carta de ${carta.name}.`);
+    } else if (carta.type === 'tienda'){
+        // Si el jugador humano usa la tienda
+        if (jugadorObj === jugador) {
+            agregarLog(`${jugadorObj.nombre} visita La Tienda.`);
+            mostrarTienda(jugadorObj);
+        } else {
+            // La IA descarta la carta de la tienda, por ahora no la usa
+            agregarLog(`${jugadorObj.nombre} descarta la carta de La Tienda.`);
+        }
+    }
+
+    // Actualiza el estado y cambia el turno
+    actualizarBarrasSalud();
+    actualizarCartasJugador(jugador, mazoJugador, cartasJugador);
+    actualizarCartasJugador(ia, mazoIA, cartasIA, false);
+    
+    comprobarFinDeJuego();
+    // Si el juego no ha terminado, pasa el turno
+    if(jugador.salud > 0 && ia.salud > 0) {
+        cambiarTurno();
+    }
 }
+
 
 
 function mostrarTienda(jugadorActual) {
-    tiendaItemsContainer.innerHTML = '';
-    objetosTienda.forEach(item => {
-        const itemDiv = document.createElement('div');
-        itemDiv.classList.add('tienda-item');
-        itemDiv.innerHTML = `
-            <h4>${item.nombre}</h4>
-            <p>Costo: ${item.cost} Oro</p>
-            <p>${item.descripcion}</p>
-        `;
-        itemDiv.addEventListener('click', () => {
-            comprarObjeto(item, jugadorActual);
-        });
-        tiendaItemsContainer.appendChild(itemDiv);
-    });
-    tiendaPanel.classList.remove('hidden');
+    tiendaItemsContainer.innerHTML = '';
+    objetosTienda.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('tienda-item');
+        itemDiv.innerHTML = `
+            <img src="${item.imagen}" alt="${item.nombre}">
+            <div class="item-info">
+                <h4>${item.nombre}</h4>
+                <p>${item.descripcion}</p>
+                <p class="item-costo">Costo: ${item.costo} Oro</p>
+            </div>
+        `;
+        itemDiv.addEventListener('click', () => {
+            comprarObjeto(item, jugadorActual);
+        });
+        tiendaItemsContainer.appendChild(itemDiv);
+    });
+    tiendaPanel.classList.remove('hidden');
 }
 
 function comprarObjeto(item, jugadorActual) {
-    if (jugadorActual.oro >= item.cost) {
-        jugadorActual.oro -= item.cost;
-        jugadorActual.inventario.push(item.nombre);
-        agregarLog(`${jugadorActual.nombre} ha comprado ${item.nombre} por ${item.cost} de oro.`);
-        tiendaPanel.classList.add('hidden');
-        actualizarEstado();
-    } else {
-        agregarLog(`¡${jugadorActual.nombre} no tiene suficiente oro para comprar ${item.nombre} !`);
-    }
+    if (jugadorActual.oro >= item.costo) {
+        jugadorActual.oro -= item.costo;
+        jugadorActual.inventario.push(item);
+        agregarLog(`${jugadorActual.nombre} ha comprado ${item.nombre} por ${item.costo} de oro.`);
+        
+        // Si el jugador que compra es la IA, consume una acción
+        if (jugadorActual === ia) {
+            accionesIA--;
+        }
+        
+        tiendaPanel.classList.add('hidden');
+        actualizarEstado();
+    } else {
+        agregarLog(`¡${jugadorActual.nombre} no tiene suficiente oro para comprar ${item.nombre}!`);
+    }
 }
+
+
+
+
 
 cerrarTiendaBtn.addEventListener('click', () => {
     tiendaPanel.classList.add('hidden');
@@ -360,6 +419,36 @@ function cambiarTurno() {
         setTimeout(turnoIA, 800);
     }
 }
+
+// Nueva función para usar objetos del inventario
+function usarObjeto(item, index, jugadorActual) {
+    if (!esTurnoJugador) {
+        agregarLog("No es tu turno para usar un objeto.");
+        return;
+    }
+    
+    // Lógica del efecto según el tipo de objeto
+    if (item.tipo === 'pocion') {
+        const curacion = 5;
+        jugadorActual.salud = Math.min(20, jugadorActual.salud + curacion);
+        agregarLog(`${jugadorActual.nombre} usa una ${item.nombre} y se cura ${curacion} de salud.`);
+        // Elimina la poción del inventario
+        jugadorActual.inventario.splice(index, 1);
+
+    } else if (item.tipo === 'artefacto') {
+        jugadorActual.energiaMaxima += 1;
+        jugadorActual.energia = jugadorActual.energiaMaxima;
+        agregarLog(`${jugadorActual.nombre} usa un ${item.nombre} y su energía máxima aumenta a ${jugadorActual.energiaMaxima}.`);
+        // Elimina el anillo del inventario
+        jugadorActual.inventario.splice(index, 1);
+    }
+    
+    // Al usar un objeto, se gasta una acción.
+    accionesJugador--;
+    actualizarEstado();
+    cambiarTurno();
+}
+
 
 // Nueva función auxiliar para que la IA elija una carta de ataque
 function elegirCartaAtaqueIA() {
@@ -391,47 +480,92 @@ function turnoIA() {
         return;
     }
     
-    if (mazoIA.length === 0) {
-        agregarLog('IA no tiene más cartas');
-        accionesIA = 0;
-        comprobarFinRonda();
+    // Prioridad 1: Usar objetos del inventario si es necesario
+    const pocionInventarioIA = ia.inventario.find(o => o.nombre === "Poción Curación");
+    if (ia.salud <= 5 && pocionInventarioIA) {
+        usarObjetoIA(pociónInventarioIA, ia);
+        setTimeout(turnoIA, 800);
         return;
     }
 
-    let cartaIA = null;
+    const anilloInventarioIA = ia.inventario.find(o => o.nombre === "Anillo de Energía");
+    if (ia.salud < 10 && anilloInventarioIA) { // El anillo ahora se usa si la salud es baja, lo que es más probable.
+        usarObjetoIA(anilloInventarioIA, ia);
+        setTimeout(turnoIA, 800);
+        return;
+    }
 
-    // Lógica de estrategia
-    // 1. Si la IA tiene salud baja ( <= 5) y una carta de sanación
+    // Prioridad 2: Jugar cartas
+    let cartaAI = null;
     const cartaSanacion = elegirCartaSanacionIA();
+    const cartaAtaque = elegirCartaAtaqueIA();
+
     if (ia.salud <= 5 && cartaSanacion) {
-        cartaIA = cartaSanacion;
-    } 
-    // 2. Si el jugador tiene salud baja (<= 5) y la IA tiene una carta de ataque
-    else if (jugador.salud <= 5) {
-        const cartaAtaque = elegirCartaAtaqueIA();
-        if (cartaAtaque) {
-            cartaIA = cartaAtaque;
+        cartaAI = cartaSanacion;
+    } else if (jugador.salud <= 5 && cartaAtaque) {
+        cartaAI = cartaAtaque;
+    } else if (ia.salud > 5 && cartaAtaque) {
+        cartaAI = cartaAtaque;
+    } else if (cartaSanacion) {
+        cartaAI = cartaSanacion;
+    } else if (mazoIA.length > 0) {
+        cartaAI = mazoIA[Math.floor(Math.random() * mazoIA.length)];
+    }
+
+    if (cartaAI) {
+        jugarCarta(cartaAI, mazoIA, ia);
+        setTimeout(turnoIA, 800);
+        return;
+    }
+
+    // Prioridad 3: Comprar objetos si no quedan acciones o si no hay cartas válidas para jugar
+    // Si la IA no puede jugar cartas, intentará comprar.
+    if (!cartaAI || accionesIA > 1) {
+        const pocionCuracionTienda = objetosTienda.find(o => o.nombre === "Poción Curación");
+        if (ia.salud <= 10 && ia.oro >= pocionCuracionTienda.costo && !ia.inventario.some(o => o.nombre === pocionCuracionTienda.nombre)) {
+            comprarObjeto(pociónCuracionTienda, ia);
+            setTimeout(turnoIA, 800);
+            return;
+        }
+
+        const anilloEnergiaTienda = objetosTienda.find(o => o.nombre === "Anillo de Energía");
+        if (ia.oro >= anilloEnergiaTienda.costo && ia.energiaMaxima <= jugador.energiaMaxima && !ia.inventario.some(o => o.nombre === anilloEnergiaTienda.nombre)) {
+            comprarObjeto(anilloEnergiaTienda, ia);
+            setTimeout(turnoIA, 800);
+            return;
         }
     }
-    // 3. Si la IA tiene salud alta (> 5) y tiene una carta de ataque
-    else if (ia.salud > 5) {
-        const cartaAtaque = elegirCartaAtaqueIA();
-        if (cartaAtaque) {
-            cartaIA = cartaAtaque;
-        }
+
+    // Acción de respaldo para evitar bloqueos
+    agregarLog("La IA no puede realizar más acciones válidas. Termina su turno.");
+    accionesIA = 0;
+    esTurnoJugador = true;
+    turnIndicator.textContent = 'Tu turno';
+    comprobarFinRonda();
+}
+
+// Nueva función para usar objetos del inventario para la IA
+function usarObjetoIA(item, jugadorActual) {
+    const index = jugadorActual.inventario.findIndex(o => o.nombre === item.nombre);
+    if (index === -1) return; // Objeto no encontrado.
+
+    // Lógica del efecto
+    if (item.tipo === 'pocion') {
+        const curacion = 5;
+        jugadorActual.salud = Math.min(20, jugadorActual.salud + curacion);
+        agregarLog(`${jugadorActual.nombre} usa una ${item.nombre} de su inventario y se cura ${curacion} de salud.`);
+        jugadorActual.inventario.splice(index, 1);
+    } else if (item.tipo === 'artefacto') {
+        jugadorActual.energiaMaxima += 1;
+        jugadorActual.energia = jugadorActual.energiaMaxima;
+        agregarLog(`${jugadorActual.nombre} usa un ${item.nombre} de su inventario. Su energía máxima aumenta a ${jugadorActual.energiaMaxima}.`);
+        jugadorActual.inventario.splice(index, 1);
+    } else if (item.tipo === 'arma') {
+        // La IA ya tiene el efecto pasivo, así que no necesita "usar" la espada.
     }
     
-    // 4. Si la IA tiene salud alta (> 5) y no tiene carta de ataque, pero sí de sanación
-    if (!cartaIA && ia.salud > 5 && cartaSanacion) {
-        cartaIA = cartaSanacion;
-    }
-
-    // 5. Si no se cumplió ninguna de las condiciones anteriores, juega una carta al azar
-    if (!cartaIA) {
-        cartaIA = mazoIA[Math.floor(Math.random() * mazoIA.length)];
-    }
-
-    jugarCarta(cartaIA, mazoIA, ia);
+    accionesIA--;
+    actualizarEstado();
 }
 
 function recargarEnergiaAlInicioRonda() {
