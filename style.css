@@ -1,532 +1,98 @@
 /* ---------------------------
    STYLE.CSS - Juego de Cartas
-   con barras de salud y energía
 --------------------------- */
 
 /* Reset básico */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Verdana, sans-serif;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: Verdana, sans-serif; }
+body { background: url("img/fondo pergamino.jpg") center center fixed; background-size: cover; color: #f4e1c1; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
+h1 { margin-bottom: 20px; color: #ffd700; text-shadow: 2px 2px 8px #000; font-size: 2.5rem; text-align: center; }
 
-/* Body */
-body {
-    background: url("img/fondo\ pergamino.jpg")  center center fixed;
-    color: #f4e1c1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    padding: 20px;
-}
+/* Contenedor principal */
+#gameContainer { display: flex; width: 100%; max-width: 1400px; justify-content: space-between; align-items: flex-start; gap: 20px; }
 
-/* Título */
-h1 {
-     margin-bottom: 20px;
-    color: #ffd700;
-    text-shadow: 2px 2px 8px #000;
-    font-size: 2.5rem;
-}
-
-/* Log de juego */
-#logPanel {
-   width: 80%;
-    max-width: 800px;
-    background: rgba(45, 30, 15, 0.9);
-    border: 3px solid #d4af37;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 15px;
-    box-shadow: 0 0 15px #000;
-}
-
-#logPanel h3 {
-     margin-bottom: 10px;
-    color: #ffd700;
-    font-size: 1.2rem;
-    text-shadow: 1px 1px 4px #000;
-}
-
-#log {
-   height: 160px;
-    overflow-y: auto;
-    background: rgba(25, 15, 10, 0.85);
-    padding: 8px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-family: "Georgia", serif;
-    color: #f4e1c1;
-}
-
-/* Indicadores de turno y ronda */
-#turnIndicator, #ronda {
-   font-size: 18px;
+#turnIndicator {
+    font-size: 1.5rem;
     font-weight: bold;
-    margin: 10px 0;
-    padding: 6px 12px;
-    border-radius: 6px;
-    background: rgba(80, 50, 20, 0.9);
-    border: 2px solid #d4af37;
     color: #ffd700;
+    text-shadow: 1px 1px 4px #000;
+    margin-bottom: 10px;
     text-align: center;
-    width: 220px;
-    box-shadow: 0 0 10px #000;
 }
 
-/* Tablero */
-#gameBoard {
-   
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
-    max-width: 1000px;
-    gap: 20px;
-}
+/* Atributos jugador/IA */
+.player-attributes, .opponent-attributes { background: rgba(45, 30, 15, 0.9); padding: 15px; border: 3px solid #d4af37; border-radius: 12px; box-shadow: 0 0 15px #000; min-width: 180px; display: flex; flex-direction: column; gap: 8px; }
+.player-attributes h2, .opponent-attributes h2 { color: #ffd700; text-shadow: 1px 1px 4px #000; text-align: center; }
 
-/* Zonas de jugador e IA */
-.zone {
-   
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-}
+/* Tablero central */
+#gameBoard { display: flex; flex-direction: column; align-items: center; gap: 15px; flex-grow: 1; }
 
-.health-bar-container, .energy-bar-container {
-    width: 200px;
-    height: 20px;
-    background-color: #333;
-    border: 2px solid #555;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 5px 0;
-}
-
-.health-bar, .energy-bar {
-    height: 100%;
-    transition: width 0.5s ease-in-out;
-}
-
-/* Colores salud */
-.health-bar {
-    background: linear-gradient(90deg, #4caf50, #2e7d32);
-}
-
-/* Colores energía */
-.energy-bar {
-    background: linear-gradient(90deg, #2196F3, #1976D2);
-}
-
-/* Zonas */
-.opponent-zone, .player-zone {
-    background: rgba(50, 30, 20, 0.9);
-    padding: 12px;
-    border-radius: 12px;
-    border: 3px solid #6b5c4b;
-    box-shadow: 0 0 10px #000;
-    /* background: url("img/tablero.jpg"); */
-}
-
-/* Atributos */
-.player-attributes, .opponent-attributes {
-   margin-bottom: 10px;
-    font-size: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px; 
-}
-
-/* Icono para el oro */
-#oro-jugador-text::before,
-#oro-ia-text::before {
-    content: "🪙 ";
-    color: #ffd700;
-    font-size: 1.2em;
-    margin-right: 2px;
-}
+/* Turno */
+#turnIndicator { font-size: 18px; font-weight: bold; margin: 10px 0; padding: 6px 12px; border-radius: 6px; background: rgba(80, 50, 20, 0.9); border: 2px solid #d4af37; color: #ffd700; text-align: center; width: 220px; box-shadow: 0 0 10px #000; }
 
 /* Battlefield */
-.battlefield {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-}
+.battlefield { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; }
 
-/* Mano del jugador */
-.hand {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
+/* Mano del jugador / IA */
+.hand { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; padding: 10px; background: #1e1e2f; border: 2px solid #444; border-radius: 8px; min-height: 180px; overflow-x: auto; }
 
-/* Cartas */
-.card-container {
-    perspective: 1000px;
-    width: 100px;
-    height: 140px;
-    cursor: pointer;
-}
+/* Contenedor de cada carta */
+.card-container { width: 120px; height: 160px; perspective: 1000px; cursor: pointer; }
 
-.card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
+/* Cartas internas */
+.card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+.card-inner.flip { transform: rotateY(180deg); }
 
-.card-inner.flip {
-    transform: rotateY(180deg);
-}
+/* Anverso y reverso */
+.card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; overflow: hidden; border: 1px solid #666; }
+.card-front img, .card-back img { width: 100%; height: 100%; object-fit: cover; }
+.card-back { transform: rotateY(180deg); }
 
-.card-front, .card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 10px;
-    overflow: hidden;
-    backface-visibility: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
-}
+/* Atributos de la carta */
+.card-attributes { position: absolute; bottom: 5px; left: 5px; display: flex; gap: 5px; font-size: 14px; color: #fff; }
+.card-cost { background: #333; padding: 2px 4px; border-radius: 3px; }
+.card-damage { background: #b71c1c; padding: 2px 4px; border-radius: 3px; }
+.card-heal { background: #2e7d32; padding: 2px 4px; border-radius: 3px; }
 
-.card-front img, .card-back img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+/* Scroll */
+.hand::-webkit-scrollbar { height: 6px; }
+.hand::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
+.hand::-webkit-scrollbar-track { background: #222; }
 
-.card-back {
-    transform: rotateY(180deg);
-}
+/* Log */
 
-/* NUEVOS ESTILOS PARA LA INTERFAZ DE CARTAS */
-
-/* Contenedor de atributos de la carta */
-.card-attributes {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-/* Estilo para el costo de energía */
-.card-cost {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: #2196F3;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid white;
-    z-index: 10;
-}
-
-/* Estilo para el daño de ataque */
-.card-damage {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: #D32F2F;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid white;
-    z-index: 10;
-}
-
-/* Estilo para la curación */
-.card-heal {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: #4CAF50;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid white;
-    z-index: 10;
-}
-
-/* Efectos de ataque y curación */
-#battlefield.attack {
-    animation: shake 0.3s;
-}
-
-#battlefield.heal {
-    animation: pulse 0.5s;
-}
-
-#opponentZone.damage, #playerZone.damage {
-    animation: flashRed 0.3s;
-}
-
-@keyframes flashRed {
-    0% { background-color: #2a2a3f; }
-    50% { background-color: #8b0000; }
-    100% { background-color: #2a2a3f; }
-}
-
-.used-cards-panel {
+#logPanel {
     position: fixed;
     bottom: 10px;
-    width: 150px;
-    max-height: 200px;
-    background: rgba(30, 30, 47, 0.8);
-    border: 2px solid #555;
-    border-radius: 10px;
-    padding: 5px;
-    overflow-y: auto;
-    font-size: 12px;
-    color: #ffd700;
-}
-
-#jugadorUsadas { left: 10px; }
-#iaUsadas { right: 10px; }
-
-.used-cards img {
-    width: 40px;
-    height: 56px;
-    margin: 2px;
-    border-radius: 5px;
-    object-fit: cover;
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* Nuevo estilo para las miniaturas del inventario */
-.inventario-item-mini {
-    width: 30px; /* Tamaño de la miniatura */
-    height: 30px;
-    object-fit: contain;
-    margin-right: 5px; /* Espacio entre las miniaturas */
-    border: 1px solid #6b5c4b; /* Opcional: un borde para que se vean mejor */
-    border-radius: 5px;
-}
-
-/* NUEVAS BARRAS DE ENERGÍA */
-/* Contenedor de atributos extendido */
-.player-attributes, .opponent-attributes {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-}
-
-/* Mostrar barra y texto juntos */
-.energy-container, .health-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-/* Barra de energía (añadir si no existe) */
-.energy-bar-container {
-  width: 200px;
-  height: 20px;
-  background-color: #2f2f3f;
-  border: 2px solid #465;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 5px 0;
-}
-
-.energy-bar {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, #2196F3, #1976D2);
-  transition: width 0.45s ease-in-out, background 0.25s linear;
-}
-
-/* Contenedores (ya incluídos en tu CSS pero por seguridad) */
-.energy-container, .health-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Nuevo CSS para la Tienda */
-#tiendaPanel {
-     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(45, 30, 20, 0.95);
-    border: 3px solid #d4af37;
-    padding: 20px;
-    border-radius: 12px;
-    z-index: 100;
     width: 90%;
-    max-width: 600px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.7);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-#tiendaItems {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-}
-
-.tienda-item {
-    background: rgba(60, 40, 25, 0.95);
-    border: 2px solid #8b5a2b;
-    border-radius: 10px;
-    padding: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    width: 150px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 0 10px #000;
-}
-
-.tienda-item:hover {
-    transform: translateY(-6px) scale(1.05);
-    box-shadow: 0 0 15px #ffd700;
-}
-
-.tienda-item img {
-   width: 90px;
-    height: 90px;
-    object-fit: contain;
-    margin-bottom: 8px;
-}
-
-.tienda-item h4 {
-    margin: 0;
-    color: #ffd700;
-    text-shadow: 1px 1px 3px #000;
-}
-
-.tienda-item p {
-   margin: 5px 0 0;
-    color: #e0cfa9;
-    font-size: 0.9em;
-    font-family: "Georgia", serif;
-}
-
-.item-costo {
-   color: #ffcc00;
-    font-weight: bold;
-}
-
-#cerrarTiendaBtn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    background-color: #8b0000;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s;
-    align-self: flex-end;
-}
-
-#cerrarTiendaBtn:hover {
-   background-color: #b22222;
-    transform: scale(1.05);
-}
-
-/* Estilos para la pantalla de Game Over */
-#gameOverScreen {
-   position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(10, 0, 0, 0.9);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    z-index: 1000;
-}
-
-.gameOverContent {
-     text-align: center;
-    padding: 30px;
-    border-radius: 15px;
-    background-color: rgba(50, 20, 20, 0.95);
+    max-width: 1400px;
+    background: rgba(45, 30, 15, 0.95);
     border: 3px solid #d4af37;
-    box-shadow: 0 0 20px #000;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 0 15px #000;
+    font-family: "Georgia", serif;
+    color: #f4e1c1;
+    z-index: 100; /* menor que el botón */
 }
 
-#gameOverMessage {
-   font-size: 2.5em;
-    margin-bottom: 20px;
-    color: #ffd700;
-    text-shadow: 2px 2px 6px #000;
-}
+#logPanel h3 { margin-bottom: 10px; color: #ffd700; font-size: 1.2rem; text-shadow: 1px 1px 4px #000; }
+#log { height: 150px; overflow-y: auto; background: rgba(25, 15, 10, 0.85); padding: 8px; border-radius: 8px; font-size: 14px; color: #f4e1c1; }
 
-#restartButton {
-      padding: 12px 24px;
-    font-size: 1.2em;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: white;
-    border: none;
+#pasarTurnoBtn {
+    padding: 10px 16px;
+    background-color: #8b0000;
+    color: #fff;
+    font-weight: bold;
+    border: 2px solid #d4af37;
     border-radius: 8px;
+    cursor: pointer;
     transition: background-color 0.3s, transform 0.2s;
+    align-self: flex-start;
+    z-index: 101; /* más alto que el log */
+    position: relative; /* aseguramos que z-index funcione */
 }
 
-#restartButton:hover {
-    background-color: #388e3c;
+#pasarTurnoBtn:hover {
+    background-color: #b22222;
     transform: scale(1.05);
-}
-
-/* Clase para ocultar el elemento */
-.hidden {
-    display: none !important;
-}
-
-#nivel-jugador, #nivel-ia {
-     color: #00ffcc;
-    font-weight: bold;
-}
-
-#xp-jugador, #xp-ia {
-    color: #ffa500;
-    font-weight: bold;
 }
