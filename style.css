@@ -490,3 +490,19 @@ h1 {
 .hidden {
     display: none !important;
 }
+
+/* Animación y efecto para el estado "enfermo" */
+.zombie-effect-animation {
+    animation: zombie-pulse 1.5s infinite;
+    animation-timing-function: ease-in-out;
+}
+
+@keyframes zombie-pulse {
+    0% { filter: hue-rotate(0deg); }
+    50% { filter: hue-rotate(180deg); transform: scale(1.05); }
+    100% { filter: hue-rotate(0deg); }
+}
+
+.zombie-effect {
+    filter: hue-rotate(180deg);
+}
