@@ -39,8 +39,30 @@ const gameOverMessage = document.getElementById('gameOverMessage');
 const restartButton = document.getElementById('restartButton');
 
 // Jugadores y sus atributos
-let jugador = { nombre: 'Tú', salud: 20, energia: 25, energiaMaxima: 45, oro: 10, inventario: [] };
-let ia = { nombre: 'IA', salud: 20, energia: 25, energiaMaxima: 45, oro: 10, inventario: [] };
+let jugador = { 
+    nombre: 'Tú', 
+    salud: 20, 
+    saludMaxima: 20,
+    energia: 25, 
+    energiaMaxima: 45, 
+    oro: 10, 
+    inventario: [],
+    xp: 0,
+    nivel: 1
+};
+
+let ia = { 
+    nombre: 'IA', 
+    salud: 20, 
+    saludMaxima: 20,
+    energia: 25, 
+    energiaMaxima: 45, 
+    oro: 10, 
+    inventario: [],
+    xp: 0,
+    nivel: 1
+};
+
 
 // Variables del juego
 let numeroRonda = 1;
@@ -332,7 +354,12 @@ function jugarCarta(carta, mazo, jugadorObj) {
         agregarLog(`${jugadorObj.nombre} se cura ${curacion} (Salud: ${jugadorObj.salud})`);
     } else if (carta.type === 'accion') {
         // Lógica de acción para cartas que no se añaden al inventario.
+        if (carta.name === "El Sabio") {
+        ganarXP(jugadorObj, 20); // suficiente para subir un nivel
+    } else {
         agregarLog(`${jugadorObj.nombre} usa la carta de ${carta.name}.`);
+    }
+  
     } else if (carta.type === 'tienda'){
         // Si el jugador humano usa la tienda
         if (jugadorObj === jugador) {
@@ -355,6 +382,42 @@ function jugarCarta(carta, mazo, jugadorObj) {
         cambiarTurno();
     }
 }
+
+function ganarXP(jugadorObj, cantidad) {
+    jugadorObj.xp += cantidad;
+    agregarLog(`${jugadorObj.nombre} gana ${cantidad} XP (Total: ${jugadorObj.xp}).`);
+
+    // Fórmula para siguiente nivel
+    let xpNecesaria = jugadorObj.nivel * 20;
+
+    while (jugadorObj.xp >= xpNecesaria) {
+        jugadorObj.xp -= xpNecesaria;
+        jugadorObj.nivel++;
+        agregarLog(`🎉 ${jugadorObj.nombre} sube a nivel ${jugadorObj.nivel}!`);
+
+        // Bonificaciones por nivel
+        jugadorObj.saludMaxima += 2;
+        jugadorObj.salud = jugadorObj.saludMaxima; // se cura al subir
+        jugadorObj.energiaMaxima += 1;
+
+        // Actualizar barras
+        actualizarBarrasSalud();
+        actualizarBarrasEnergia();
+        actualizarNivelXP();
+
+
+        xpNecesaria = jugadorObj.nivel * 20;
+    }
+}
+
+function actualizarNivelXP() {
+    document.getElementById("nivel-jugador").textContent = jugador.nivel;
+    document.getElementById("xp-jugador").textContent = jugador.xp;
+
+    document.getElementById("nivel-ia").textContent = ia.nivel;
+    document.getElementById("xp-ia").textContent = ia.xp;
+}
+
 
 
 
@@ -605,13 +668,18 @@ function comprobarFinRonda() {
 }
 
 function comprobarFinDeJuego() {
-    if (jugador.salud <= 0) {
-        gameOverMessage.textContent = "¡Has perdido! La IA ha ganado.";
-        gameOverScreen.classList.remove('hidden');
-    } else if (ia.salud <= 0) {
-        gameOverMessage.textContent = "¡Felicidades! Has ganado el juego.";
-        gameOverScreen.classList.remove('hidden');
-    }
+ if (jugador.salud <= 0 || ia.salud <= 0) {
+        if (jugador.salud <= 0 && ia.salud <= 0) {
+            gameOverMessage.textContent = "¡Es un empate!";
+        } else if (jugador.salud <= 0) {
+            gameOverMessage.textContent = "¡Has perdido contra la IA!";
+            ganarXP(ia, 30);
+        } else if (ia.salud <= 0) {
+            gameOverMessage.textContent = "¡Has ganado contra la IA!";
+            ganarXP(jugador, 30);
+        }
+        gameOverScreen.classList.remove('hidden');
+    }
 }
 
 function reiniciarJuego() {
@@ -640,6 +708,7 @@ function reiniciarJuego() {
     gameOverScreen.classList.add('hidden');
     log.innerHTML = '';
     
+    actualizarNivelXP();
     repartirCartas();
     actualizarCartasJugador(jugador, mazoJugador, cartasJugador);
     actualizarCartasJugador(ia, mazoIA, cartasIA, false);

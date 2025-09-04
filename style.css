@@ -13,8 +13,8 @@
 
 /* Body */
 body {
-    background: #1e1e2f;
-    color: #f0f0f0;
+    background: url("img/fondo\ pergamino.jpg")  center center fixed;
+    color: #f4e1c1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,51 +24,60 @@ body {
 
 /* Título */
 h1 {
-    margin-bottom: 20px;
-    color: #ffcc00;
-    text-shadow: 2px 2px 5px #000;
+     margin-bottom: 20px;
+    color: #ffd700;
+    text-shadow: 2px 2px 8px #000;
+    font-size: 2.5rem;
 }
 
 /* Log de juego */
 #logPanel {
-    width: 80%;
+   width: 80%;
     max-width: 800px;
-    background: #2b2b3f;
-    border: 2px solid #444;
-    border-radius: 10px;
-    padding: 10px;
+    background: rgba(45, 30, 15, 0.9);
+    border: 3px solid #d4af37;
+    border-radius: 12px;
+    padding: 12px;
     margin-bottom: 15px;
+    box-shadow: 0 0 15px #000;
 }
 
 #logPanel h3 {
-    margin-bottom: 10px;
+     margin-bottom: 10px;
     color: #ffd700;
+    font-size: 1.2rem;
+    text-shadow: 1px 1px 4px #000;
 }
 
 #log {
-    height: 150px;
+   height: 160px;
     overflow-y: auto;
-    background: #1f1f2d;
+    background: rgba(25, 15, 10, 0.85);
     padding: 8px;
-    border-radius: 5px;
+    border-radius: 8px;
     font-size: 14px;
+    font-family: "Georgia", serif;
+    color: #f4e1c1;
 }
 
 /* Indicadores de turno y ronda */
 #turnIndicator, #ronda {
-    font-size: 18px;
+   font-size: 18px;
     font-weight: bold;
     margin: 10px 0;
     padding: 6px 12px;
-    border-radius: 5px;
-    background: #33334d;
-    color: #ffcc00;
+    border-radius: 6px;
+    background: rgba(80, 50, 20, 0.9);
+    border: 2px solid #d4af37;
+    color: #ffd700;
     text-align: center;
-    width: 200px;
+    width: 220px;
+    box-shadow: 0 0 10px #000;
 }
 
 /* Tablero */
 #gameBoard {
+   
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -79,6 +88,7 @@ h1 {
 
 /* Zonas de jugador e IA */
 .zone {
+   
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -112,16 +122,30 @@ h1 {
 
 /* Zonas */
 .opponent-zone, .player-zone {
-    background: #2a2a3f;
-    padding: 10px;
-    border-radius: 10px;
-    border: 2px solid #555;
+    background: rgba(50, 30, 20, 0.9);
+    padding: 12px;
+    border-radius: 12px;
+    border: 3px solid #6b5c4b;
+    box-shadow: 0 0 10px #000;
+    /* background: url("img/tablero.jpg"); */
 }
 
 /* Atributos */
 .player-attributes, .opponent-attributes {
-    margin-bottom: 10px;
+   margin-bottom: 10px;
     font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px; 
+}
+
+/* Icono para el oro */
+#oro-jugador-text::before,
+#oro-ia-text::before {
+    content: "🪙 ";
+    color: #ffd700;
+    font-size: 1.2em;
+    margin-right: 2px;
 }
 
 /* Battlefield */
@@ -358,18 +382,18 @@ h1 {
 
 /* Nuevo CSS para la Tienda */
 #tiendaPanel {
-    position: fixed;
+     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #2c2f33;
-    border: 2px solid #6b5c4b;
+    background: rgba(45, 30, 20, 0.95);
+    border: 3px solid #d4af37;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 12px;
     z-index: 100;
     width: 90%;
     max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -383,10 +407,10 @@ h1 {
 }
 
 .tienda-item {
-    background: #36393f;
-    border: 1px solid #4a4d53;
-    border-radius: 8px;
-    padding: 10px;
+    background: rgba(60, 40, 25, 0.95);
+    border: 2px solid #8b5a2b;
+    border-radius: 10px;
+    padding: 12px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -394,60 +418,64 @@ h1 {
     width: 150px;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 0 10px #000;
 }
 
 .tienda-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    transform: translateY(-6px) scale(1.05);
+    box-shadow: 0 0 15px #ffd700;
 }
 
 .tienda-item img {
-    width: 100px;
-    height: 100px;
+   width: 90px;
+    height: 90px;
     object-fit: contain;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .tienda-item h4 {
     margin: 0;
     color: #ffd700;
+    text-shadow: 1px 1px 3px #000;
 }
 
 .tienda-item p {
-    margin: 5px 0 0;
-    color: #b0b0b0;
+   margin: 5px 0 0;
+    color: #e0cfa9;
     font-size: 0.9em;
+    font-family: "Georgia", serif;
 }
 
 .item-costo {
-    color: #e6b800;
+   color: #ffcc00;
     font-weight: bold;
 }
 
 #cerrarTiendaBtn {
     padding: 10px 20px;
     border: none;
-    border-radius: 5px;
-    background-color: #f44336;
+    border-radius: 6px;
+    background-color: #8b0000;
     color: white;
     font-weight: bold;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s;
     align-self: flex-end;
 }
 
 #cerrarTiendaBtn:hover {
-    background-color: #d32f2f;
+   background-color: #b22222;
+    transform: scale(1.05);
 }
 
 /* Estilos para la pantalla de Game Over */
 #gameOverScreen {
-    position: fixed;
+   position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(10, 0, 0, 0.9);
     color: white;
     display: flex;
     justify-content: center;
@@ -457,36 +485,48 @@ h1 {
 }
 
 .gameOverContent {
-    text-align: center;
+     text-align: center;
     padding: 30px;
     border-radius: 15px;
-    background-color: #2b2b3f;
-    border: 2px solid #ffcc00;
-    box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+    background-color: rgba(50, 20, 20, 0.95);
+    border: 3px solid #d4af37;
+    box-shadow: 0 0 20px #000;
 }
 
 #gameOverMessage {
-    font-size: 2.5em;
+   font-size: 2.5em;
     margin-bottom: 20px;
-    color: #ffcc00;
+    color: #ffd700;
+    text-shadow: 2px 2px 6px #000;
 }
 
 #restartButton {
-    padding: 12px 24px;
+      padding: 12px 24px;
     font-size: 1.2em;
     cursor: pointer;
     background-color: #4caf50;
     color: white;
     border: none;
     border-radius: 8px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 #restartButton:hover {
-    background-color: #45a049;
+    background-color: #388e3c;
+    transform: scale(1.05);
 }
 
 /* Clase para ocultar el elemento */
 .hidden {
     display: none !important;
+}
+
+#nivel-jugador, #nivel-ia {
+     color: #00ffcc;
+    font-weight: bold;
+}
+
+#xp-jugador, #xp-ia {
+    color: #ffa500;
+    font-weight: bold;
 }
