@@ -1,487 +1,564 @@
-/* ---------------------------
-   STYLE.CSS - Juego de Cartas
-   con barras de salud y energía
---------------------------- */
+/* ------------------------------
+    STYLE.CSS - Juego de Cartas
+    Versión Cyberpunk Futurista
+------------------------------ */
 
-/* Reset básico */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Verdana, sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+/* Reset y fuentes */
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Orbitron', sans-serif; 
 }
 
-/* Body */
 body {
-    background: #1e1e2f;
-    color: #f0f0f0;
+    background: linear-gradient(135deg, #0d0f1c 0%, #1a1a2e 100%);
+    color: #e0e0ff;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
     min-height: 100vh;
     padding: 20px;
+
+    background-image: url('img/fondo.jpg');
+
+    box-shadow: inset 0 0 120px rgba(0, 255, 255, 0.15), inset 0 0 120px rgba(255, 0, 255, 0.15);
+    animation: neon-pulse 10s infinite;
 }
 
-/* Título */
-h1 {
-    margin-bottom: 20px;
-    color: #ffcc00;
-    text-shadow: 2px 2px 5px #000;
+@keyframes neon-pulse {
+    0% { box-shadow: inset 0 0 100px rgba(0, 255, 255, 0.12), inset 0 0 100px rgba(255, 0, 255, 0.12); }
+    50% { box-shadow: inset 0 0 140px rgba(0, 255, 255, 0.2), inset 0 0 140px rgba(255, 0, 255, 0.2); }
+    100% { box-shadow: inset 0 0 100px rgba(0, 255, 255, 0.12), inset 0 0 100px rgba(255, 0, 255, 0.12); }
 }
 
-/* Log de juego */
-#logPanel {
-    width: 80%;
-    max-width: 800px;
-    background: #2b2b3f;
-    border: 2px solid #444;
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-#logPanel h3 {
+.game-title {
     margin-bottom: 10px;
-    color: #ffd700;
-}
-
-#log {
-    height: 150px;
-    overflow-y: auto;
-    background: #1f1f2d;
-    padding: 8px;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-/* Indicadores de turno y ronda */
-#turnIndicator, #ronda {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 10px 0;
-    padding: 6px 12px;
-    border-radius: 5px;
-    background: #33334d;
-    color: #ffcc00;
+    color: #ff00ff;
+    text-shadow: 0 0 12px #ff00ff, 0 0 24px #00ffff;
+    font-size: 2.5rem;
     text-align: center;
-    width: 200px;
+    letter-spacing: 2px;
 }
 
-/* Tablero */
-#gameBoard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 90%;
-    max-width: 1000px;
-    gap: 20px;
-}
-
-/* Zonas de jugador e IA */
-.zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Contenedores principales */
+#gameLayout {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
     width: 100%;
+    max-width: 1600px;
+    height: 90vh;
+    gap: 20px;
+    align-items: stretch;
 }
 
-.health-bar-container, .energy-bar-container {
-    width: 200px;
-    height: 20px;
-    background-color: #333;
-    border: 2px solid #555;
-    border-radius: 10px;
-    overflow: hidden;
-    margin: 5px 0;
+.attributes-column {
+    grid-column: 1 / 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: sticky;
+    top: 20px;
 }
 
-.health-bar, .energy-bar {
-    height: 100%;
-    transition: width 0.5s ease-in-out;
+#gameBoard {
+    grid-column: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 0;
 }
 
-/* Colores salud */
-.health-bar {
-    background: linear-gradient(90deg, #4caf50, #2e7d32);
+.panel {
+    background: rgba(30, 30, 60, 0.9);
+    border: 2px solid #ff00ff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.4), 0 0 25px rgba(0, 255, 255, 0.3);
 }
 
-/* Colores energía */
-.energy-bar {
-    background: linear-gradient(90deg, #2196F3, #1976D2);
-}
-
-/* Zonas */
-.opponent-zone, .player-zone {
-    background: #2a2a3f;
-    padding: 10px;
-    border-radius: 10px;
-    border: 2px solid #555;
-}
-
-/* Atributos */
+/* Atributos jugador/IA */
 .player-attributes, .opponent-attributes {
-    margin-bottom: 10px;
-    font-size: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    min-width: 180px;
+}
+.player-attributes h2, .opponent-attributes h2 { 
+    color: #00ffff; 
+    text-align: center; 
+    font-size: 1.8rem; 
+    text-shadow: 0 0 8px #00ffff, 0 0 15px #ff00ff;
+}
+.stat-group { display: flex; justify-content: space-between; font-size: 1.1rem; }
+.stat-value { font-weight: bold; color: #ffea00; }
+
+/* Indicador de turno */
+#turnIndicator {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #ff00ff;
+    text-align: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background-color: rgba(50, 20, 80, 0.7);
+    border: 2px solid #ff00ff;
 }
 
-/* Battlefield */
-.battlefield {
+/* Nuevo estilo para las manos de cartas */
+.hand {
     display: flex;
     justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
-}
-
-/* Mano del jugador */
-.hand {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-/* Cartas */
-.card-container {
-    perspective: 1000px;
-    width: 100px;
-    height: 140px;
-    cursor: pointer;
-}
-
-.card-inner {
+    padding: 15px;
+    background: linear-gradient(to right, #1a0033, #2a003f, #1a0033);
+    border: 2px solid #ff00ff;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+    min-height: 170px;
+    max-height: 170px;
+    overflow-x: auto;
+    overflow-y: hidden;
     position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
+    transition: all 0.3s ease;
 }
+.hand h3 { display: none; }
 
-.card-inner.flip {
-    transform: rotateY(180deg);
-}
+/* Diseño de cartas */
+.card-container { width: 120px; height: 160px; perspective: 1000px; cursor: pointer; transition: transform 0.2s ease; }
+.card-container:hover { transform: translateY(-10px) scale(1.05); }
+
+.card-inner { width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d; }
+.card-inner.flip { transform: rotateY(180deg); }
 
 .card-front, .card-back {
     position: absolute;
     width: 100%;
     height: 100%;
+    backface-visibility: hidden;
     border-radius: 10px;
     overflow: hidden;
-    backface-visibility: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+    border: 2px solid #ff00ff;
+    box-shadow: 0 0 12px rgba(255, 0, 255, 0.5);
+    background-color: #1f0033;
 }
+.card-front img, .card-back img { width: 100%; height: 100%; object-fit: cover; }
+.card-back { transform: rotateY(180deg); background: #2b003f; border: 2px solid #00ffff; box-shadow: 0 0 15px #00ffff; }
 
-.card-front img, .card-back img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.card-back {
-    transform: rotateY(180deg);
-}
-
-/* NUEVOS ESTILOS PARA LA INTERFAZ DE CARTAS */
-
-/* Contenedor de atributos de la carta */
+/* Atributos de la carta */
 .card-attributes {
     position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    gap: 5px;
+    font-size: 12px;
+    color: #e0e0e0;
+}
+.card-attributes span {
+    padding: 3px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25px;
+    height: 25px;
+    font-size: 0.9rem;
+    box-shadow: 0 0 10px rgba(0,0,0,0.7);
+}
+.card-cost { background: #00ffff; color: #000; }
+.card-cost-creditos { background: #ffea00; color: #000; }
+.card-cost-datos { background: #9b59b6; color: #fff; }
+.card-damage { background: #ff0044; color: #fff; }
+.card-heal { background: #00ff88; color: #000; }
+.card-creditos { background: #ffea00; color: #000; }
+.card-datos { background: #9b59b6; color: #fff; }
+
+/* Nuevos estilos para el título y la descripción de la carta */
+.card-title {
+    position: absolute;
+    top: 60%;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 6px #00ffff, 0 0 12px #ff00ff;
+    background: rgba(0,0,0,0.5);
+    padding: 3px 0;
+    border-top: 1px solid rgba(0, 255, 255, 0.4);
+    border-bottom: 1px solid rgba(255, 0, 255, 0.4);
+}
+
+.card-description {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    font-size: 0.75rem;
+    color: #a0f0ff;
+    text-align: center;
+    padding: 5px;
+    background: rgba(0,0,0,0.7);
+    line-height: 1.2;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.7);
+}
+
+/* Ocultar cartas IA */
+.card-inner.ai-card { transform: rotateY(180deg); }
+
+/* Panel de Log - estilo retro futurista */
+#logPanel {
+    grid-column: 3 / 4;
+    display: flex;
+    flex-direction: column;
+    min-height: 250px;
+    max-height: 55vh;
+    background-color: #111;
+    border: 2px solid #00ffcc;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 0 12px #00ffcc, inset 0 0 10px #ff00ff;
+    font-family: 'Share Tech Mono', monospace;
+    color: #00ffcc;
+}
+#logPanel h3 {
+    margin-bottom: 10px;
+    color: #ff00ff;
+    font-size: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #00ffff;
+    padding-bottom: 5px;
+    text-shadow: 0 0 8px #ff00ff, 0 0 12px #00ffff;
+}
+#log {
+    height: 100%;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.8);
+    padding: 10px;
+    border-radius: 3px;
+    font-size: 1.1rem;
+    color: #00ffcc;
+    line-height: 1.4;
+    border: 1px solid #00ffff;
+    box-shadow: inset 0 0 5px #ff00ff;
+}
+#log div { padding: 4px 0; border-bottom: 1px dashed #00ffff; }
+#log div:last-child { border-bottom: none; }
+#log strong { color: #ffea00; }
+#log em { color: #00ff88; }
+#log::-webkit-scrollbar { width: 8px; }
+#log::-webkit-scrollbar-track { background: #0a0a0f; }
+#log::-webkit-scrollbar-thumb { background-color: #ff00ff; border-radius: 4px; border: 1px solid #00ffff; }
+#log::-webkit-scrollbar-thumb:hover { background-color: #00ffff; }
+
+/* Campo de batalla */
+.battlefield {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    min-height: 180px;
+    width: 100%;
+    flex-grow: 1;
+}
+
+/* Botón de acción */
+.action-btn {
+    padding: 12px 30px;
+    background: linear-gradient(135deg, #ff00ff, #00ffff);
+    color: #000;
+    font-weight: bold;
+    border: 2px solid #00ffff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 0 12px #ff00ff, 0 0 20px #00ffff;
+}
+.action-btn:hover {
+    background: linear-gradient(135deg, #00ffff, #ff00ff);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
+}
+.action-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 0 8px #ff00ff, 0 0 12px #00ffff;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-thumb { background: #ff00ff; border-radius: 5px; border: 2px solid #0a0a0f; }
+::-webkit-scrollbar-thumb:hover { background: #00ffff; }
+
+/* Contenedor de botones */
+#buttons-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    position: absolute;
+    bottom: 280px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    padding: 15px 30px;
+    background: rgba(20, 0, 40, 0.8);
+    border-radius: 12px;
+    border: 1px solid #ff00ff;
+    box-shadow: 0 0 20px #ff00ff, 0 0 30px #00ffff;
+    z-index: 80;
+}
+
+/* Overlay de Game Over */
+.game-over-overlay {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-}
-
-/* Estilo para el costo de energía */
-.card-cost {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: #2196F3;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    background-color: rgba(10, 0, 20, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid white;
-    z-index: 10;
+    z-index: 1000;
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.5s ease-out;
 }
 
-/* Estilo para el daño de ataque */
-.card-damage {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: #D32F2F;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid white;
-    z-index: 10;
-}
-
-/* Estilo para la curación */
-.card-heal {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    font-size: 1.2em;
-    font-weight: bold;
-    color: white;
-    background-color: #4CAF50;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid white;
-    z-index: 10;
-}
-
-/* Efectos de ataque y curación */
-#battlefield.attack {
-    animation: shake 0.3s;
-}
-
-#battlefield.heal {
-    animation: pulse 0.5s;
-}
-
-#opponentZone.damage, #playerZone.damage {
-    animation: flashRed 0.3s;
-}
-
-@keyframes flashRed {
-    0% { background-color: #2a2a3f; }
-    50% { background-color: #8b0000; }
-    100% { background-color: #2a2a3f; }
-}
-
-.used-cards-panel {
-    position: fixed;
-    bottom: 10px;
-    width: 150px;
-    max-height: 200px;
-    background: rgba(30, 30, 47, 0.8);
-    border: 2px solid #555;
-    border-radius: 10px;
-    padding: 5px;
-    overflow-y: auto;
-    font-size: 12px;
-    color: #ffd700;
-}
-
-#jugadorUsadas { left: 10px; }
-#iaUsadas { right: 10px; }
-
-.used-cards img {
-    width: 40px;
-    height: 56px;
-    margin: 2px;
-    border-radius: 5px;
-    object-fit: cover;
-}
-
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* Nuevo estilo para las miniaturas del inventario */
-.inventario-item-mini {
-    width: 30px; /* Tamaño de la miniatura */
-    height: 30px;
-    object-fit: contain;
-    margin-right: 5px; /* Espacio entre las miniaturas */
-    border: 1px solid #6b5c4b; /* Opcional: un borde para que se vean mejor */
-    border-radius: 5px;
-}
-
-/* NUEVAS BARRAS DE ENERGÍA */
-/* Contenedor de atributos extendido */
-.player-attributes, .opponent-attributes {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2px;
-}
-
-/* Mostrar barra y texto juntos */
-.energy-container, .health-container {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
-/* Barra de energía (añadir si no existe) */
-.energy-bar-container {
-  width: 200px;
-  height: 20px;
-  background-color: #2f2f3f;
-  border: 2px solid #465;
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 5px 0;
-}
-
-.energy-bar {
-  height: 100%;
-  width: 100%;
-  background: linear-gradient(90deg, #2196F3, #1976D2);
-  transition: width 0.45s ease-in-out, background 0.25s linear;
-}
-
-/* Contenedores (ya incluídos en tu CSS pero por seguridad) */
-.energy-container, .health-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* Nuevo CSS para la Tienda */
-#tiendaPanel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: #2c2f33;
-    border: 2px solid #6b5c4b;
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 100;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-#tiendaItems {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-}
-
-.tienda-item {
-    background: #36393f;
-    border: 1px solid #4a4d53;
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+/* Caja de Game Over */
+.game-over-box {
+    background: linear-gradient(145deg, #1a0022, #2a0033);
+    border: 2px solid #ff00ff;
+    box-shadow: 0 0 25px rgba(255, 0, 255, 0.7), 0 0 30px rgba(0, 255, 255, 0.6);
+    padding: 40px;
+    border-radius: 15px;
     text-align: center;
-    width: 150px;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    color: #e0e0ff;
+    font-family: 'Share Tech Mono', monospace;
+    max-width: 500px;
+    width: 90%;
+    animation: scaleIn 0.5s ease-out;
 }
 
-.tienda-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+.game-over-box h1 {
+    color: #00ffff;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+    text-shadow: 0 0 15px #00ffff, 0 0 25px #ff00ff;
 }
 
-.tienda-item img {
-    width: 100px;
-    height: 100px;
-    object-fit: contain;
-    margin-bottom: 10px;
+.game-over-box p {
+    font-size: 1.4em;
+    margin-bottom: 30px;
+    line-height: 1.5;
 }
 
-.tienda-item h4 {
-    margin: 0;
-    color: #ffd700;
-}
-
-.tienda-item p {
-    margin: 5px 0 0;
-    color: #b0b0b0;
-    font-size: 0.9em;
-}
-
-.item-costo {
-    color: #e6b800;
-    font-weight: bold;
-}
-
-#cerrarTiendaBtn {
-    padding: 10px 20px;
+.game-over-box button {
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
     border: none;
-    border-radius: 5px;
-    background-color: #f44336;
-    color: white;
+    padding: 15px 30px;
+    font-size: 1.2em;
     font-weight: bold;
+    color: #000;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    align-self: flex-end;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px #ff00ff, 0 0 25px #00ffff;
+}
+.game-over-box button:hover {
+    background: linear-gradient(45deg, #00ffff, #ff00ff);
+    box-shadow: 0 0 30px #ff00ff, 0 0 40px #00ffff;
+    transform: translateY(-3px);
 }
 
-#cerrarTiendaBtn:hover {
-    background-color: #d32f2f;
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes scaleIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
-/* Estilos para la pantalla de Game Over */
-#gameOverScreen {
+
+/* Estilos para la imagen de la carta en el modal */
+.modal-card-image {
+    width: 150px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 2px solid #00F0FF; /* Borde ciberpunk */
+    box-shadow: 0 0 10px #00F0FF;
+}
+
+/* Estilos para el contenedor del modal */
+.modal-content {
+    background-color: #1a1a2e; /* Fondo oscuro */
+    color: #00F0FF; /* Texto de color ciberpunk */
+    border: 2px solid #00F0FF;
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.5); /* Sombra brillante */
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Efecto de animación para el modal */
+#event-modal.modal-visible .modal-content {
+    transform: scale(1);
+}
+
+/* Estilos para el título y la descripción */
+#modal-title {
+    font-family: 'Courier New', Courier, monospace;
+    text-transform: uppercase;
+    text-shadow: 0 0 5px #00F0FF;
+}
+
+#modal-description {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+/* Estilos para los botones de las opciones */
+#modal-choices {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-choice-btn {
+    background-color: #3b3a4d;
+    color: #00F0FF;
+    border: 1px solid #00F0FF;
+    padding: 12px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.modal-choice-btn:hover {
+    background-color: #00F0FF;
+    color: #1a1a2e;
+    transform: translateY(-2px);
+}
+
+/* Estilos para el modal del minijuego */
+#minijuego-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
-    color: white;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    z-index: 1000;
+    z-index: 101; /* Asegura que esté por encima del modal de evento */
+    font-family: 'Courier New', Courier, monospace;
 }
 
-.gameOverContent {
+/* Contenedor del contenido del minijuego */
+#minijuego-modal .modal-content {
+    background-color: #0d0d1a;
+    border: 2px solid #00F0FF; /* Borde de neón */
+    border-radius: 10px;
+    padding: 40px;
     text-align: center;
-    padding: 30px;
-    border-radius: 15px;
-    background-color: #2b2b3f;
-    border: 2px solid #ffcc00;
-    box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+    color: #00F0FF; /* Color del texto de neón */
+    box-shadow: 
+        0 0 15px #00F0FF, /* Resplandor interior */
+        0 0 30px rgba(0, 240, 255, 0.5); /* Resplandor exterior */
+    max-width: 600px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
 }
 
-#gameOverMessage {
+/* Efecto de fondo de matriz */
+#minijuego-modal .modal-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(rgba(0, 240, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.5;
+    z-index: -1; /* Mantiene el contenido por encima */
+}
+
+/* Estilo para el título del puzle */
+#minijuego-modal h2 {
     font-size: 2.5em;
-    margin-bottom: 20px;
-    color: #ffcc00;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px #00F0FF;
+    text-transform: uppercase;
 }
 
-#restartButton {
-    padding: 12px 24px;
+/* Estilo para la descripción */
+#minijuego-modal p {
+    font-size: 1.1em;
+    line-height: 1.4;
+    color: #b3f0ff;
+    margin-bottom: 25px;
+}
+
+/* Estilo para el campo de entrada */
+#minijuego-modal input {
+    width: 80%;
+    padding: 12px;
+    background-color: #1a1a2e;
+    border: 1px solid #00F0FF;
+    color: #00F0FF;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1em;
+    text-align: center;
+    box-shadow: 0 0 5px #00F0FF;
+    transition: box-shadow 0.3s ease;
+}
+
+#minijuego-modal input:focus {
+    outline: none;
+    box-shadow: 0 0 15px #00F0FF;
+}
+
+/* Estilo para el botón de verificación */
+#minijuego-modal button {
+    margin-top: 20px;
+    padding: 12px 30px;
     font-size: 1.2em;
-    cursor: pointer;
-    background-color: #4caf50;
-    color: white;
+    text-transform: uppercase;
+    background-color: #00F0FF;
+    color: #0d0d1a;
     border: none;
-    border-radius: 8px;
-    transition: background-color 0.3s;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #00F0FF;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
+<<<<<<< HEAD
 #restartButton:hover {
     background-color: #45a049;
 }
@@ -505,4 +582,9 @@ h1 {
 
 .zombie-effect {
     filter: hue-rotate(180deg);
+=======
+#minijuego-modal button:hover {
+    background-color: #8cffff;
+    transform: translateY(-2px);
+>>>>>>> f91b794
 }

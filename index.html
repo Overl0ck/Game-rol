@@ -2,26 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Juego de Cartas - VS IA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Cartas Futurista</title>
     <link rel="stylesheet" href="style.css">
-    <script src="client.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Juego de Cartas - Demo VS IA</h1>
-    <div id="logPanel">
-        <h3>Log de juego</h3>
-        <div id="log"></div>
+    <div id="gameLayout">
+        <div class="attributes-column">
+          <div class="player-attributes panel">
+    <h2>Jugador</h2>
+    <div class="stat-group">
+        <span class="icon">💖</span>
+        <progress id="salud-jugador" value="20" max="10"></progress>
+        <span id="salud-jugador-num" class="stat-value">10</span>
     </div>
-
-    <div id="jugadorUsadas" class="used-cards-panel">
-        <h4>Cartas usadas (Jugador)</h4>
-        <div class="used-cards" id="jugadorCardsUsed"></div>
+    <div class="stat-group">
+        <span class="icon">⚡</span>
+        <progress id="energia-jugador" value="10" max="10"></progress>
+        <span id="energia-jugador-num" class="stat-value">10</span>
     </div>
-
-    <div id="iaUsadas" class="used-cards-panel">
-        <h4>Cartas usadas (IA)</h4>
-        <div class="used-cards" id="iaCardsUsed"></div>
+    <div class="stat-group">
+        <span class="icon">💳</span>
+        <span>Créditos:</span> <span id="creditos-jugador" class="stat-value">0</span>
     </div>
+<<<<<<< HEAD
 
     <div id="turnIndicator">Tu turno</div>
     <div id="ronda">Ronda: 1</div>
@@ -73,33 +78,57 @@
                 
               | Inventario: <span id="inventario-jugador">Vacío</span> | Oro: <span id="oro-jugador-text">10</span>
             </div>
+=======
+    <div class="stat-group">
+        <span class="icon">🖥️</span>
+        <span>Datos:</span> <span id="datos-jugador" class="stat-value">0</span>
+    </div>
+</div>
+<div class="opponent-attributes panel">
+    <h2>IA</h2>
+    <div class="stat-group">
+        <span class="icon">💖</span>
+        <progress id="salud-ia" value="20" max="10"></progress>
+        <span id="salud-ia-num" class="stat-value">10</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">⚡</span>
+        <progress id="energia-ia" value="10" max="10"></progress>
+        <span id="energia-ia-num" class="stat-value">10</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">💳</span>
+        <span>Créditos:</span> <span id="creditos-ia" class="stat-value">0</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">🖥️</span>
+        <span>Datos:</span> <span id="datos-ia" class="stat-value">0</span>
+    </div>
+</div>
+         
+        </div>
+
+        <div id="gameBoard">
+            <div id="turnIndicator">Turno: Jugador</div>
+            <br>
+            <div class="hand" id="cards-ia"></div>
+            <div id="battlefield" class="battlefield"></div>
+>>>>>>> f91b794
             <div class="hand" id="cards-jugador"></div>
-        </div>
-    </div>
-
-   <div id="tiendaPanel" class="hidden">
-    <h3>La Tienda</h3>
-    <div id="tiendaItems">
-        <div class="tienda-item">
-            <img src="path/a/tu/imagen.png" alt="Nombre del objeto">
-            <div class="item-info">
-                <h4>Nombre del objeto</h4>
-                <p class="item-costo">Costo: 5 Oro</p>
-                <p>Descripción del objeto.</p>
+            <div id="buttons-container">
+                <button id="pasarTurnoBtn" class="action-btn">Finalizar Turno</button>
+                <button id="descartarBtn" class="action-btn discard-btn">Descartar Cartas</button>
             </div>
-            <button class="comprar-btn">Comprar</button>
+        </div>
+        
+        <div id="logPanel" class="panel">
+           
+            <div id="log"></div>
         </div>
     </div>
-    <button id="cerrarTiendaBtn">Cerrar</button>
-</div>
 
-
-    <div id="gameOverScreen" class="hidden">
-    <div class="gameOverContent">
-        <h2 id="gameOverMessage"></h2>
-        <button id="restartButton">Reiniciar Juego</button>
-    </div>
-</div>
-
+   
+    
+    <script src="client.js"></script>
 </body>
 </html>
