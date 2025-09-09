@@ -1,56 +1,80 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Juego de Cartas</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Cartas Futurista</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 </head>
 <body>
-<h1>Juego de Cartas VS IA</h1>
-
-<div id="gameContainer">
-
-    <!-- Atributos jugador -->
-    <div class="player-attributes">
-        <h2>Jugador</h2>
-        <div>Salud: <span id="salud-jugador">20</span></div>
-        <div>Energía: <span id="energia-jugador">10</span></div>
-        <div id="nivel-jugador">Nivel: 1</div>
+    <div id="gameLayout">
+        <div class="attributes-column">
+          <div class="player-attributes panel">
+    <h2>Jugador</h2>
+    <div class="stat-group">
+        <span class="icon">💖</span>
+        <progress id="salud-jugador" value="20" max="10"></progress>
+        <span id="salud-jugador-num" class="stat-value">10</span>
     </div>
-
-    <!-- Tablero central -->
-    <div id="gameBoard">
-      <div id="gameBoard">
-    <div id="turnIndicator">Turno: 1</div>
-    <div id="battlefield" class="battlefield"></div>
+    <div class="stat-group">
+        <span class="icon">⚡</span>
+        <progress id="energia-jugador" value="10" max="10"></progress>
+        <span id="energia-jugador-num" class="stat-value">10</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">💳</span>
+        <span>Créditos:</span> <span id="creditos-jugador" class="stat-value">0</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">🖥️</span>
+        <span>Datos:</span> <span id="datos-jugador" class="stat-value">0</span>
+    </div>
 </div>
+<div class="opponent-attributes panel">
+    <h2>IA</h2>
+    <div class="stat-group">
+        <span class="icon">💖</span>
+        <progress id="salud-ia" value="20" max="10"></progress>
+        <span id="salud-ia-num" class="stat-value">10</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">⚡</span>
+        <progress id="energia-ia" value="10" max="10"></progress>
+        <span id="energia-ia-num" class="stat-value">10</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">💳</span>
+        <span>Créditos:</span> <span id="creditos-ia" class="stat-value">0</span>
+    </div>
+    <div class="stat-group">
+        <span class="icon">🖥️</span>
+        <span>Datos:</span> <span id="datos-ia" class="stat-value">0</span>
+    </div>
+</div>
+         
+        </div>
 
-        <div id="turnIndicator">Turno: Jugador</div>
-        <div id="battlefield" class="battlefield"></div>
-        <div id="playerZone">
-          
-            <h3>Tu mano</h3>
-            
-            <div id="cards-jugador" class="hand"></div>
-           
+        <div id="gameBoard">
+            <div id="turnIndicator">Turno: Jugador</div>
+            <br>
+            <div class="hand" id="cards-ia"></div>
+            <div id="battlefield" class="battlefield"></div>
+            <div class="hand" id="cards-jugador"></div>
+            <div id="buttons-container">
+                <button id="pasarTurnoBtn" class="action-btn">Finalizar Turno</button>
+                <button id="descartarBtn" class="action-btn discard-btn">Descartar Cartas</button>
+            </div>
         </div>
         
-        <div id="logPanel">
-            <h3>Log</h3>
+        <div id="logPanel" class="panel">
+           
             <div id="log"></div>
         </div>
     </div>
 
-    <!-- Atributos IA -->
-    <div class="opponent-attributes">
-        <h2>IA</h2>
-        <div>Salud: <span id="salud-ia">20</span></div>
-        <div>Energía: <span id="energia-ia">10</span></div>
-        <div id="nivel-ia">Nivel: 1</div>
-    </div>
-
-</div>
-
-<script src="client.js"></script>
+   
+    
+    <script src="client.js"></script>
 </body>
 </html>
